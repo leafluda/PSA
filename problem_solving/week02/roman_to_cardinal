@@ -1,5 +1,6 @@
 #include <iostream>
 #include <string>
+#include <Windows.h>
 
 using namespace std;
 
@@ -10,11 +11,24 @@ int main() {
     string roman;
 
     while (true) {
-        cout << "1 ~ 3999 사이의 숫자를 입력해 주세요.(0 입력시 종료): ";
+        cout << "1 ~ 3999 사이의 숫자를 입력해 주세요. (ESC 키를 누르면 종료됩니다.): ";
         string input;
-        cin >> input;
+        bool escapeKeyPressed = false;
 
-        if (input == "0") {
+        while (true) {
+            if (GetAsyncKeyState(VK_ESCAPE)) { // ESC 키 입력 확인
+                escapeKeyPressed = true;
+                break;
+            }
+            if (cin >> input) {
+                break;
+            }
+            cin.clear();
+            cin.ignore(numeric_limits<streamsize>::max(), '\n');
+            cout << "Error: 잘못된 입력입니다. 1 ~ 3999 사이의 숫자를 입력해 주세요." << endl;
+        }
+
+        if (escapeKeyPressed) { // ESC 키 입력 시 종료
             break;
         }
 
