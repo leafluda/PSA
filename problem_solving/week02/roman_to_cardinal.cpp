@@ -1,68 +1,71 @@
 #include <iostream>
+#include <cstdlib>
 #include <string>
-#include <Windows.h>
+#include <conio.h>
 
 using namespace std;
 
-string toRoman(int num);
+// 숫자를 로마숫자로 변환하는 함수
+string intToRoman(int num) {
+    string roman = "";
+    string symbol[] = { "M","CM","D","CD","C","XC","L","XL","X","IX","V","IV","I" };
+    int value[] = { 1000,900,500,400,100,90,50,40,10,9,5,4,1 };
+
+    for (int i = 0; i < 13; i++) {
+        while (num >= value[i]) {
+            num -= value[i];
+            roman += symbol[i];
+        }
+    }
+    return roman;
+}
 
 int main() {
-    int num;
-    string roman;
-
-    while (true) {
-        cout << "1 ~ 3999 사이의 숫자를 입력해 주세요. (ESC 키를 누르면 종료됩니다.): ";
+    bool esc = true;
+    while (esc) {
         string input;
-        bool escapeKeyPressed = false;
+        cout << "숫자를 입력하세요: ";
+        cin >> input;
 
-        while (true) {
-            if (GetAsyncKeyState(VK_ESCAPE)) { // ESC 키 입력 확인
-                escapeKeyPressed = true;
+        // 입력값이 숫자인지 확인
+        bool isNumber = true;
+        for (char c : input) {
+            if (!isdigit(c)) {
+                isNumber = false;
                 break;
             }
-            if (cin >> input) {
-                break;
-            }
-            cin.clear();
-            cin.ignore(numeric_limits<streamsize>::max(), '\n');
-            cout << "Error: 잘못된 입력입니다. 1 ~ 3999 사이의 숫자를 입력해 주세요." << endl;
         }
 
-        if (escapeKeyPressed) { // ESC 키 입력 시 종료
-            break;
+        if (!isNumber) {
+            cout << "잘못 입력하셨습니다." << endl;
+            continue; // 다시 입력을 받음
         }
 
-        if (input.length() == 0 || !isdigit(input[0])) {
-            cout << "Error: 잘못된 입력입니다. 1 ~ 3999 사이의 숫자를 입력해 주세요." << endl;
-            continue;
-        }
-
-        num = stoi(input);
-
+        int num = stoi(input);
         if (num < 1 || num > 3999) {
-            cout << "Error: 1 ~ 3999 사이의 숫자를 입력해 주세요." << endl;
-            continue;
+            cout << "1~3999 사이의 숫자를 입력해주세요." << endl;
+            continue; // 다시 입력을 받음
         }
 
-        roman = toRoman(num);
-        cout << num << " ==로마자 변환=> " << roman << endl;
+        string roman = intToRoman(num);
+        cout << num << "을 로마숫자로 변환한 결과: " << roman << endl;
+
+        cout << "다시 숫자를 입력하시겠습니까 ? (esc를 누르면 종료, 그외 키를 입력하면 계속) : " << endl;
+        
+        for (int i = 0; i < 5; i++) {
+            if (_kbhit()) { // 키보드 입력이 있는 경우
+                if (_getch() == 27) { // ESC 키를 누른 경우
+                    esc = false; // 루프를 종료합니다.
+                    break;
+                }
+                else
+                {
+                    break;
+                }
+            }
+            i--;
+        }
     }
 
     return 0;
-}
-
-string toRoman(int num) {
-    string roman;
-
-    const string romanNumerals[] = { "M", "CM", "D", "CD", "C", "XC", "L", "XL", "X", "IX", "V", "IV", "I" };
-    const int decimalValues[] = { 1000, 900, 500, 400, 100, 90, 50, 40, 10, 9, 5, 4, 1 };
-
-    for (int i = 0; i < 13; i++) {
-        while (num >= decimalValues[i]) {
-            roman += romanNumerals[i];
-            num -= decimalValues[i];
-        }
-    }
-
-    return roman;
 }
