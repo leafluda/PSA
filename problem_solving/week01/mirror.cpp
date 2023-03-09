@@ -15,7 +15,6 @@ unsigned short reverse_number(unsigned short num) {
 
 int main() {
     unsigned short num;
-    char input;
     bool esc = true;
 
     while (esc)
@@ -36,7 +35,7 @@ int main() {
                 }
                 else {
                     cout << "입력한 숫자의 역순은 " << rev_num << " 입니다." << endl;
-                    cout << "다시 숫자를 입력하시겠습니까? (esc를 누르면 종료, 그외의 키를 입력하면 계속): ";
+                    cout << "다시 숫자를 입력하시겠습니까? (esc를 누르면 종료, 그외 키를 입력하면 계속): ";
                     for (int i = 0; i < 5; i++) {
                         if (_kbhit()) { // 키보드 입력이 있는 경우
                             if (_getch() == 27) { // ESC 키를 누른 경우
