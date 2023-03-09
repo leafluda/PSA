@@ -3,7 +3,7 @@
 
 using namespace std;
 
-int toDecimal(char c); // 로마 숫자를 10진수로 변환하는 함수
+int toDecimal(char c); // 로마 숫자 하나를 10진수로 변환하는 함수
 int romanToDecimal(string s); // 로마 숫자를 10진수로 변환하는 함수
 
 int main() {
