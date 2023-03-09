@@ -1,5 +1,6 @@
 #include <iostream>
 #include <string>
+#include <conio.h> // getch() 함수를 사용하기 위한 헤더 파일
 
 using namespace std;
 
@@ -10,23 +11,29 @@ int main() {
     string roman;
 
     while (true) {
-        cout << "로마 숫자를 입력하세요 (0 입력시 종료): ";
-        cin >> roman;
+        cout << "로마 숫자를 입력하세요 (ESC 키를 누르면 종료됩니다.): ";
+        char ch = getch(); // 키 입력 받기
 
-        if (roman == "0") {
+        if (ch == 27) { // ESC 키가 눌리면 종료
             break;
         }
+        else if (ch == '\r') { // Enter 키가 눌리면 로마 숫자 변환 실행
+            int decimal = romanToDecimal(roman);
 
-        int decimal = romanToDecimal(roman);
+            if (decimal == -1) { // 에러 발생시 -1 반환
+                cout << "Error: 잘못된 입력입니다. 로마 숫자를 입력해주세요." << endl;
+            }
+            else {
+                cout << roman << " ==10진수 변환==> " << decimal << endl;
+            }
 
-        if (decimal == -1) { // 에러 발생시 -1 반환
-            cout << "Error: 잘못된 입력입니다. 로마 숫자를 입력해주세요." << endl;
+            roman = ""; // 입력된 로마 숫자 초기화
         }
-        else {
-            cout << roman << " ==10진수 변환==> " << decimal << endl;
+        else { // 로마 숫자 입력 받기
+            roman += ch;
+            cout << ch;
         }
     }
-
     return 0;
 }
 
