@@ -1,50 +1,64 @@
 #include <iostream>
-#include <string>
-
+#include <limits>
+#include <conio.h>
 using namespace std;
+
+// 입력 받은 숫자를 뒤집는 함수
+unsigned short reverse_number(unsigned short num) {
+    unsigned short rev = 0;
+    while (num > 0) {
+        rev = rev * 10 + num % 10;
+        num /= 10;
+    }
+    return rev;
+}
 
 int main() {
     unsigned short num;
-    string numStr;
-    bool error = false;
+    char input;
+    bool esc = true;
 
-    cout << "Enter a number: ";
-    cin >> numStr;
-
-    // Check if input is valid
-    for (char c : numStr) {
-        if (!isdigit(c)) {
-            error = true;
-            break;
+    while (esc)
+    {
+        cout << "숫자를 입력하세요: ";
+        if (cin >> num) {
+            // 입력한 값이 unsigned short 범위 내에 있는지 확인
+            if (num > numeric_limits<unsigned short>::max()) {
+                cout << "에러: 입력값이 unsigned short 범위를 초과했습니다." << endl;
+                cin.clear();  // 오류 플래그 초기화
+                cin.ignore(numeric_limits<streamsize>::max(), '\n');  // 입력 버퍼 비우기
+            }
+            else {
+                unsigned short rev_num = reverse_number(num);
+                // 결과값이 unsigned short 범위 내에 있는지 확인
+                if (rev_num > numeric_limits<unsigned short>::max()) {
+                    cout << "에러: 결과값이 unsigned short 범위를 초과했습니다." << endl;
+                }
+                else {
+                    cout << "입력한 숫자의 역순은 " << rev_num << " 입니다." << endl;
+                    cout << "다시 숫자를 입력하시겠습니까? (esc를 누르면 종료, 그외의 키를 입력하면 계속): ";
+                    for (int i = 0; i < 5; i++) {
+                        if (_kbhit()) { // 키보드 입력이 있는 경우
+                            if (_getch() == 27) { // ESC 키를 누른 경우
+                                esc = false; // 루프를 종료합니다.
+                                break;
+                            }
+                            else
+                            {
+                                break;
+                            }
+                        }
+                        i--;
+                    }
+                }
+            }
+        }
+        else {
+            cout << "에러: 올바른 숫자가 아닙니다." << endl;
+            cin.clear();  // 오류 플래그 초기화
+            cin.ignore(numeric_limits<streamsize>::max(), '\n');  // 입력 버퍼 비우기
         }
     }
 
-    if (error || numStr.size() > 5) {
-        cout << "Error: Invalid input" << endl;
-        return 1;
-    }
-
-    num = stoi(numStr);
-
-    if (num > USHRT_MAX) {
-        cout << "Error: Input value is greater than the maximum value of unsigned short" << endl;
-        return 1;
-    }
-
-    unsigned short reversedNum = 0;
-    unsigned short tempNum = num;
-
-    // Reverse the number
-    while (tempNum > 0) {
-        reversedNum = reversedNum * 10 + (tempNum % 10);
-        tempNum /= 10;
-    }
-
-    if (reversedNum > USHRT_MAX) {
-        cout << "Error: Reversed value is greater than the maximum value of unsigned short" << endl;
-        return 1;
-    }
-
-    cout << "Reversed number: " << reversedNum << endl;
     return 0;
 }
