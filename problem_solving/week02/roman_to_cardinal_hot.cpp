@@ -1,65 +1,82 @@
 #include <iostream>
 #include <string>
-#include <conio.h>
+#include <conio.h> // _kbhit(), _getch() 함수 사용을 위해 추가
 
 using namespace std;
 
-// 로마 숫자를 숫자로 변환하는 함수
-int romanToDecimal(string romanNumeral) {
-    int decimalNum = 0;
-    for (int i = 0; i < romanNumeral.length(); i++) {
-        // 로마 숫자에 대한 숫자 값을 매핑합니다.
-        switch (romanNumeral[i]) {
-        case 'I':
-            decimalNum += 1;
-            break;
-        case 'V':
-            decimalNum += 5;
-            break;
-        case 'X':
-            decimalNum += 10;
-            break;
-        case 'L':
-            decimalNum += 50;
-            break;
-        case 'C':
-            decimalNum += 100;
-            break;
-        case 'D':
-            decimalNum += 500;
-            break;
-        case 'M':
-            decimalNum += 1000;
-            break;
-        default:
-            return -1; // 잘못된 입력일 경우 -1을 반환합니다.
+int romanToInt(string s) {
+    int result = 0;
+    int len = s.length();
+
+    for (int i = 0; i < len; i++) {
+        if (s[i] == 'M') {
+            result += 1000;
+        }
+        else if (s[i] == 'D') {
+            result += 500;
+        }
+        else if (s[i] == 'C') {
+            if (i < len - 1 && (s[i + 1] == 'M' || s[i + 1] == 'D')) {
+                result -= 100;
+            }
+            else {
+                result += 100;
+            }
+        }
+        else if (s[i] == 'L') {
+            result += 50;
+        }
+        else if (s[i] == 'X') {
+            if (i < len - 1 && (s[i + 1] == 'C' || s[i + 1] == 'L')) {
+                result -= 10;
+            }
+            else {
+                result += 10;
+            }
+        }
+        else if (s[i] == 'V') {
+            result += 5;
+        }
+        else if (s[i] == 'I') {
+            if (i < len - 1 && (s[i + 1] == 'X' || s[i + 1] == 'V')) {
+                result -= 1;
+            }
+            else {
+                result += 1;
+            }
+        }
+        else {
+            cout << "잘못된 입력입니다. 다시 입력해주세요." << endl;
+            return -1;
         }
     }
-    return decimalNum;
+
+    return result;
 }
 
 int main() {
-    string romanNumeral;
-    int decimalNum;
-    char key = 'a'; // while문의 조건식이 참이 되도록 초기값을 설정합니다.
+    string roman;
+    int num;
 
-    while (key != 27) { // ESC 키 입력시 종료
-        // 아무 키나 누를 때까지 대기합니다.
-        cout << "로마숫자를 입력하시려면 아무 키나 누르세요. (ESC를 누르면 종료합니다.)" << endl;
-        while (!_kbhit()) {} // 키 입력 대기
-        key = _getch();
-        // 로마 숫자 입력 받기
-        do {
-            cout << "로마 숫자를 입력하세요: ";
-            cin >> romanNumeral;
-            decimalNum = romanToDecimal(romanNumeral);
-            if (decimalNum == -1) {
-                cout << "잘못된 입력입니다. 다시 입력해주세요." << endl;
-            }
-        } while (decimalNum == -1);
+    while(true) {
+        cout << "아무 키나 누르면 계속 입력할 수 있습니다. (esc를 누르면 종료)" << endl;
 
-        // 로마 숫자를 숫자로 변환하여 출력합니다.
-        cout << "입력한 로마 숫자 " << romanNumeral << "는(은) " << decimalNum << "입니다." << endl;
+        while (!_kbhit()) { // 키보드 입력을 대기
+        }
+        if (_getch() == 27) { // ESC 키를 누르면 종료
+            return 0;
+        }
+
+        cout << "로마 숫자를 입력하세요: ";
+        cin >> roman;
+
+        num = romanToInt(roman);
+
+        if (num == -1) { // 잘못된 입력인 경우 다시 입력
+            continue;
+        }
+
+        cout << "변환된 숫자: " << num << endl;
     }
 
     return 0;
