@@ -15,7 +15,7 @@ int romanToInt(string s) {
         else if (s[i] == 'D') {
             result += 500;
         }
-        else if (s[i] == 'C') {
+        else if (s[i] == 'C') { // C다음에 M혹은 D가 올경우를 고려함
             if (i < len - 1 && (s[i + 1] == 'M' || s[i + 1] == 'D')) {
                 result -= 100;
             }
@@ -26,7 +26,7 @@ int romanToInt(string s) {
         else if (s[i] == 'L') {
             result += 50;
         }
-        else if (s[i] == 'X') {
+        else if (s[i] == 'X') { // X다음에 C혹은 L이 올경우를 고려함
             if (i < len - 1 && (s[i + 1] == 'C' || s[i + 1] == 'L')) {
                 result -= 10;
             }
@@ -37,7 +37,7 @@ int romanToInt(string s) {
         else if (s[i] == 'V') {
             result += 5;
         }
-        else if (s[i] == 'I') {
+        else if (s[i] == 'I') { // I다음에 X혹은 V가 올경우를 고려함
             if (i < len - 1 && (s[i + 1] == 'X' || s[i + 1] == 'V')) {
                 result -= 1;
             }
