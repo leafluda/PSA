@@ -66,24 +66,30 @@ int main() {
             while (!_kbhit()) { // 키보드 입력을 대기
             }
             char ch = _getch();  // 키보드 값을 받음
-            if (ch == 27) {  // esc키 일 경우 종료
+            if (ch == 27) {  // esc키일 경우 종료
                 return 0;
             }
-            else if (ch == 13) { // 엔터키 일 경우 입력루프를 나가며 변환
+            else if (ch == 13) { // 엔터키일 경우 입력루프를 나가며 변환
                 break;
+            }
+            else if (ch == 8) { // 백스페이스키일 경우 입력을지워줌
+                cout << "\b";
+                cout << " ";
+                cout << "\b";
+                roman.erase(roman.size() - 1);
             }
             else { // 그외 일 경우 입력된 키보드 값을 string에 저장
                 cout << ch;
                 roman = roman + ch;
             }
         }
-            num = romanToInt(roman); // string 값을 변환
+        num = romanToInt(roman); // string 값을 변환
 
-            if (num == -1) { // 잘못된 값일 경우 에러 메세지 출력
-                continue;
-            }
-            cout << endl;
-            cout << "변환된 숫자: " << num << endl;
+        if (num == -1) { // 잘못된 값일 경우 에러 메세지 출력
+            continue;
         }
+        cout << endl;
+        cout << "변환된 숫자: " << num << endl;
+    }
     return 0;
 }
