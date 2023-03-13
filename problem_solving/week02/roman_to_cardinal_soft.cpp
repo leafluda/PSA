@@ -11,7 +11,7 @@ string intToRoman(int num) {
     string symbol[] = { "M","CM","D","CD","C","XC","L","XL","X","IX","V","IV","I" }; // 각 자리별 로마숫자 기호
     int value[] = { 1000,900,500,400,100,90,50,40,10,9,5,4,1 };  // 각 자리별 숫자 값
 
-    for (int i = 0; i < 13; i++) { 
+    for (int i = 0; i < 13; i++) {
         while (num >= value[i]) { // 현재 자리의 값이 숫자보다 작아질 때까지 반복
             num -= value[i];    // 현재 자리의 값을 숫자에서 빼줌
             roman += symbol[i]; // 로마숫자 기호를 문자열에 추가
@@ -34,9 +34,26 @@ bool checkNum(string input) {
 
 int main() {
     while (true) {
-        string input;
-        cout << "숫자를 입력하세요: ";
-        cin >> input;
+        string input = "";
+        cout << "숫자를 입력하세요. (esc키를 누르면 종료): ";
+
+        while (true) {
+            while (!_kbhit()) { // 키보드 입력을 대기
+            }
+            char ch = _getch();  // 키보드 값을 받음
+            if (ch == 27) {  // esc키 일 경우 종료
+                return 0;
+            }
+            else if (ch == 13) { // 엔터키 일 경우 입력루프를 나가며 변환
+                break;
+            }
+            else { // 그외 일 경우 입력된 키보드 값을 string에 저장
+                cout << ch;
+                input = input + ch;
+            }
+        }
+
+        cout << endl;
 
         if (!checkNum(input)) { // 입력값이 숫자가 아닌 경우
             cout << "잘못 입력하셨습니다." << endl;
@@ -51,20 +68,6 @@ int main() {
 
         string roman = intToRoman(num); // 입력값을 로마숫자로 변환
         cout << num << "을 로마숫자로 변환한 결과: " << roman << endl;
-
-        cout << "다시 숫자를 입력하시겠습니까 ? (esc를 누르면 종료, 그외 키를 입력하면 계속) : " << endl;
-
-        for (; ;) {
-            if (_kbhit()) { // 키보드 입력이 있는 경우
-                if (_getch() == 27) { // ESC 키를 누른 경우
-                    return 0; // 프로그램 종료
-                }
-                else
-                {
-                    break;
-                }
-            }
-        }
     }
     return 0;
 }
