@@ -1,6 +1,6 @@
 #include <iostream>
 #include <string>
-#include <conio.h> // _kbhit(), _getch() 함수 사용을 위해 추가
+#include <conio.h>
 
 using namespace std;
 
@@ -15,7 +15,7 @@ int romanToInt(string s) {
         else if (s[i] == 'D') {
             result += 500;
         }
-        else if (s[i] == 'C') { // C다음에 M혹은 D가 올경우를 고려함
+        else if (s[i] == 'C') { // 문자열에서 C일 경우 다음 문자가 M이나 D일 경우 100을 빼고, 그렇지 않은 경우 100을 더함
             if (i < len - 1 && (s[i + 1] == 'M' || s[i + 1] == 'D')) {
                 result -= 100;
             }
@@ -26,7 +26,7 @@ int romanToInt(string s) {
         else if (s[i] == 'L') {
             result += 50;
         }
-        else if (s[i] == 'X') { // X다음에 C혹은 L이 올경우를 고려함
+        else if (s[i] == 'X') { // 문자열에서 X일 경우 다음 문자가 C이나 L일 경우 10을 빼고, 그렇지 않은 경우 10을 더함
             if (i < len - 1 && (s[i + 1] == 'C' || s[i + 1] == 'L')) {
                 result -= 10;
             }
@@ -37,7 +37,7 @@ int romanToInt(string s) {
         else if (s[i] == 'V') {
             result += 5;
         }
-        else if (s[i] == 'I') { // I다음에 X혹은 V가 올경우를 고려함
+        else if (s[i] == 'I') { // 문자열에서 I일 경우 다음 문자가 X이나 V일 경우 1을 빼고, 그렇지 않은 경우 1을 더함
             if (i < len - 1 && (s[i + 1] == 'X' || s[i + 1] == 'V')) {
                 result -= 1;
             }
@@ -45,7 +45,7 @@ int romanToInt(string s) {
                 result += 1;
             }
         }
-        else {
+        else { // 올바르지 않은 입력인 경우 에러 메시지 출력 후 -1 반환
             cout << "잘못된 입력입니다. 다시 입력해주세요." << endl;
             return -1;
         }
@@ -57,27 +57,33 @@ int romanToInt(string s) {
 int main() {
     string roman;
     int num;
+    bool st = true;
+    while (true) {
+        roman = ""; //저장할 string 값을 초기화
+        cout << "로마 숫자를 입력하세요. (esc를 누르면 종료): ";
 
-    while(true) {
-        cout << "아무 키나 누르면 계속 입력할 수 있습니다. (esc를 누르면 종료)" << endl;
-
-        while (!_kbhit()) { // 키보드 입력을 대기
+        while (st) {
+            while (!_kbhit()) { // 키보드 입력을 대기
+            }
+            char ch = _getch();  // 키보드 값을 받음
+            if (ch == 27) {  // esc키 일 경우 종료
+                return 0;
+            }
+            else if (ch == 13) { // 엔터키 일 경우 입력루프를 나가며 변환
+                break;
+            }
+            else { // 그외 일 경우 입력된 키보드 값을 string에 저장
+                cout << ch;
+                roman = roman + ch;
+            }
         }
-        if (_getch() == 27) { // ESC 키를 누르면 종료
-            return 0;
+            num = romanToInt(roman); // string 값을 변환
+
+            if (num == -1) { // 잘못된 값일 경우 에러 메세지 출력
+                continue;
+            }
+            cout << endl;
+            cout << "변환된 숫자: " << num << endl;
         }
-
-        cout << "로마 숫자를 입력하세요: ";
-        cin >> roman;
-
-        num = romanToInt(roman);
-
-        if (num == -1) { // 잘못된 입력인 경우 다시 입력
-            continue;
-        }
-
-        cout << "변환된 숫자: " << num << endl;
-    }
-
     return 0;
 }
