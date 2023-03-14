@@ -70,6 +70,7 @@ int main() {
                 return 0;
             }
             else if (ch == 13) { // 엔터키일 경우 입력루프를 나가며 변환
+
                 break;
             }
             else if (ch == 8) { // 백스페이스키일 경우 입력을지워줌
@@ -89,7 +90,13 @@ int main() {
             continue;
         }
         cout << endl;
-        cout << "변환된 숫자: " << num << endl;
+        if (num != 0) {
+            cout << "변환된 숫자: " << num << endl;
+        }
+        else
+        {
+            cout << "값을 입력해주세요"<< endl;
+        }
     }
     return 0;
 }
