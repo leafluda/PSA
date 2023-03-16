@@ -13,7 +13,12 @@ int romanToInt(string s) {
             result += 1000;
         }
         else if (s[i] == 'D') {
-            result += 500;
+            if (i < len - 1 && s[i + 1] == 'M') {
+                result -= 500;
+            }
+            else {
+                result += 500;
+            }
         }
         else if (s[i] == 'C') { // 문자열에서 C일 경우 다음 문자가 M이나 D일 경우 100을 빼고, 그렇지 않은 경우 100을 더함
             if (i < len - 1 && (s[i + 1] == 'M' || s[i + 1] == 'D')) {
@@ -24,10 +29,15 @@ int romanToInt(string s) {
             }
         }
         else if (s[i] == 'L') {
-            result += 50;
+            if (i < len - 1 && (s[i + 1] == 'C' || s[i + 1] == 'M' || s[i + 1] == 'D')) {
+                result -= 50;
+            }
+            else {
+                result += 50;
+            }
         }
         else if (s[i] == 'X') { // 문자열에서 X일 경우 다음 문자가 C이나 L일 경우 10을 빼고, 그렇지 않은 경우 10을 더함
-            if (i < len - 1 && (s[i + 1] == 'C' || s[i + 1] == 'L')) {
+            if (i < len - 1 && (s[i + 1] == 'C' || s[i + 1] == 'L' || s[i + 1] == 'M'|| s[i + 1] == 'D')) {
                 result -= 10;
             }
             else {
@@ -35,10 +45,15 @@ int romanToInt(string s) {
             }
         }
         else if (s[i] == 'V') {
-            result += 5;
+            if (i < len - 1 && (s[i + 1] == 'X' || s[i + 1] == 'C' || s[i + 1] == 'L' || s[i + 1] == 'M' || s[i + 1] == 'D')) {
+                result -= 5;
+            }
+            else {
+                result += 5;
+            }
         }
         else if (s[i] == 'I') { // 문자열에서 I일 경우 다음 문자가 X이나 V일 경우 1을 빼고, 그렇지 않은 경우 1을 더함
-            if (i < len - 1 && (s[i + 1] == 'X' || s[i + 1] == 'V')) {
+            if (i < len - 1 && (s[i + 1] == 'X' || s[i + 1] == 'V'|| s[i + 1] == 'C' || s[i + 1] == 'L' || s[i + 1] == 'M' || s[i + 1] == 'D')) {
                 result -= 1;
             }
             else {
@@ -95,7 +110,7 @@ int main() {
         }
         else
         {
-            cout << "값을 입력해주세요"<< endl;
+            cout << "값을 입력해주세요" << endl;
         }
     }
     return 0;
