@@ -1,6 +1,7 @@
 #include <iostream>
 #include <string>
 #include <conio.h>
+#include <unordered_map>
 
 using namespace std;
 
@@ -69,15 +70,97 @@ int romanToInt(string s) {
     return result;
 }
 
+#include <iostream>
+#include <string>
+
+using namespace std;
+
+bool isValidRomanNumeral(string s) {
+    int n = s.size();
+    int countI = 0, countX = 0, countC = 0, countM = 0;
+    for (int i = 0; i < n; i++) {
+        if (s[i] == 'I') {
+            countI++;
+            if (countI > 3) {
+                return false;
+            }
+        }
+        else if (s[i] == 'V') {
+            if (i > 0 && s[i - 1] == 'I') {
+                return false;
+            }
+            countI = 0;
+        }
+        else if (s[i] == 'X') {
+            if (i > 0 && s[i - 1] == 'I') {
+                countX++;
+                if (countX > 3) {
+                    return false;
+                }
+            }
+            else {
+                countX = 1;
+            }
+            countI = 0;
+        }
+        else if (s[i] == 'L') {
+            if (i > 0 && s[i - 1] == 'X') {
+                return false;
+            }
+            countI = 0;
+            countX = 0;
+        }
+        else if (s[i] == 'C') {
+            if (i > 0 && s[i - 1] == 'X') {
+                countC++;
+                if (countC > 3) {
+                    return false;
+                }
+            }
+            else {
+                countC = 1;
+            }
+            countI = 0;
+            countX = 0;
+        }
+        else if (s[i] == 'D') {
+            if (i > 0 && s[i - 1] == 'C') {
+                return false;
+            }
+            countI = 0;
+            countX = 0;
+            countC = 0;
+        }
+        else if (s[i] == 'M') {
+            if (i > 0 && s[i - 1] == 'C') {
+                countM++;
+                if (countM > 3) {
+                    return false;
+                }
+            }
+            else {
+                countM = 1;
+            }
+            countI = 0;
+            countX = 0;
+            countC = 0;
+        }
+        else {
+            return false;
+        }
+    }
+    return true;
+}
+
 int main() {
     string roman;
     int num;
-    bool st = true;
+    bool ck = true;
     while (true) {
         roman = ""; //저장할 string 값을 초기화
         cout << "로마 숫자를 입력하세요. (esc를 누르면 종료): ";
 
-        while (st) {
+        while (true) {
             while (!_kbhit()) { // 키보드 입력을 대기
             }
             char ch = _getch();  // 키보드 값을 받음
@@ -101,7 +184,10 @@ int main() {
         }
         num = romanToInt(roman); // string 값을 변환
 
-        if (num == -1) { // 잘못된 값일 경우 에러 메세지 출력
+        ck = isValidRomanNumeral(roman);
+
+        if (num == -1 || 4000 <= num || !ck) { // 잘못된 값일 경우 에러 메세지 출력
+            cout << "잘못된 입력입니다. 다시 입력해주세요." << endl;
             continue;
         }
         cout << endl;
