@@ -239,7 +239,6 @@ void route(Map &m) {
     int Y;
     int index = 0;
     int tempindex = 0;
-    int a;
     int log = 0;
     Y = m.findPlayer() / 5;
     X = m.findPlayer() % 5;
