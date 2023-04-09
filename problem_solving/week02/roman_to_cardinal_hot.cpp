@@ -70,11 +70,6 @@ int romanToInt(string s) {
     return result;
 }
 
-#include <iostream>
-#include <string>
-
-using namespace std;
-
 bool isValidRomanNumeral(string s) {
     int n = s.size();
     int countI = 0, countX = 0, countC = 0, countM = 0;
