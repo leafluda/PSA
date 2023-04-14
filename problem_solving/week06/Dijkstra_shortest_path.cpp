@@ -60,6 +60,11 @@ public:
     }
 
     void create_wall(int x, int y) { // 벽 생성 함수
+        if (x < 0 || x > 9 || y < 0 || y > 9) { // 맵을 벗어난 좌표를 입력할경우
+            cout << "맵 좌표를 벗어났습니다. (계속 진행하려면 아무키나 입력)" << endl; // 오류 메시지 출력
+            keypress(); // 키 입력 대기
+            return;
+        }
         if (x == player_x && y == player_y || x == enemy_x && y == enemy_y) { // 벽 생성 지점에 플레이어나 적이 위치할 경우
             cout << "벽을 생성할 수 없는 지역입니다. (계속 진행하려면 아무키나 입력)" << endl; // 오류 메시지 출력
             keypress(); // 키 입력 대기
@@ -69,6 +74,11 @@ public:
     }
 
     void create_path(int x, int y) { // 길 생성 함수
+        if (x < 0 || x > 9 || y < 0 || y > 9) { // 맵을 벗어난 좌표를 입력할경우
+            cout << "맵 좌표를 벗어났습니다. (계속 진행하려면 아무키나 입력)" << endl; // 오류 메시지 출력
+            keypress(); // 키 입력 대기
+            return;
+        }
         if (x == player_x && y == player_y || x == enemy_x && y == enemy_y) { // 길 생성 지점에 플레이어나 적이 위치할 경우
             cout << "길을 생성할 수 없는 지역입니다. (계속 진행하려면 아무키나 입력)" << endl; // 오류 메시지 출력
             keypress(); // 키 입력 대기
@@ -78,6 +88,11 @@ public:
     }
 
     void set_player_position(int x, int y) { // 플레이어 위치 설정 함수
+        if (x < 0 || x > 9 || y < 0 || y > 9) { // 맵을 벗어난 좌표를 입력할경우
+            cout << "맵 좌표를 벗어났습니다. (계속 진행하려면 아무키나 입력)" << endl; // 오류 메시지 출력
+            keypress(); // 키 입력 대기
+            return;
+        }
         if (player_x != -1 && player_y != -1) { // 이미 플레이어가 위치한 경우
             map[player_x][player_y] = 0; // 이전 위치 초기화
         }
@@ -87,6 +102,11 @@ public:
     }
 
     void set_enemy_position(int x, int y) {
+        if (x < 0 || x > 9 || y < 0 || y > 9) { // 맵을 벗어난 좌표를 입력할경우
+            cout << "맵 좌표를 벗어났습니다. (계속 진행하려면 아무키나 입력)" << endl; // 오류 메시지 출력
+            keypress(); // 키 입력 대기
+            return;
+        }
         if (enemy_x != -1 && enemy_y != -1) { // 이전 적의 위치가 있을 경우
             map[enemy_x][enemy_y] = 0; // 맵 배열에서 이전 적의 위치 삭제
         }
@@ -197,7 +217,7 @@ public:
         int x = end_x, y = end_y;
         // 목표지점의 좌표를 x, y에 저장
         if (prev[x][y].first == -1 && prev[x][y].second == -1) {
-            cout << "최단경로가 존재하지 않습니다 (계속 진행하려면 아무키나 입력)" << endl;
+            cout << "최단경로가 존재하지 않습니다. (계속 진행하려면 아무키나 입력)" << endl;
             keypress();
             return;
         }
@@ -243,7 +263,7 @@ int main() {
         switch (ans)
         {
         case 1:
-            cout << "좌측상단이 (0,0) 기준으로 오른쪽으로 갈수록 x좌표가 커짐(0~9), 아래쪽으로 갈수록 y좌표가 커짐(0~9)" << endl;
+            cout << "좌측상단이 (0,0) 기준으로 오른쪽으로 갈수록 x좌표가 커짐(0~9), 아래쪽으로 갈수록 y좌표가 커짐(0~9)." << endl;
             cout << "x좌표 입력" << endl;
             cin >> x;
             cout << "y좌표 입력" << endl;
@@ -252,7 +272,7 @@ int main() {
             map.set_player_position(y, x);
             break;
         case 2:
-            cout << "좌측상단이 (0,0)기준으로 오른쪽으로 갈수록 x좌표가 커짐, 아래쪽으로 갈수록 y좌표가 커짐" << endl;
+            cout << "좌측상단이 (0,0)기준으로 오른쪽으로 갈수록 x좌표가 커짐(0~9), 아래쪽으로 갈수록 y좌표가 커짐(0~9)." << endl;
             cout << "x좌표 입력" << endl;
             cin >> x;
             cout << "y좌표 입력" << endl;
@@ -261,7 +281,7 @@ int main() {
             map.set_enemy_position(y, x);
             break;
         case 3:
-            cout << "좌측상단이 (0,0)기준으로 오른쪽으로 갈수록 x좌표가 커짐, 아래쪽으로 갈수록 y좌표가 커짐" << endl;
+            cout << "좌측상단이 (0,0)기준으로 오른쪽으로 갈수록 x좌표가 커짐(0~9), 아래쪽으로 갈수록 y좌표가 커짐(0~9)." << endl;
             cout << "x좌표 입력" << endl;
             cin >> x;
             cout << "y좌표 입력" << endl;
@@ -270,7 +290,7 @@ int main() {
             map.create_wall(y, x);
             break;
         case 4:
-            cout << "좌측상단이 (0,0)기준으로 오른쪽으로 갈수록 x좌표가 커짐, 아래쪽으로 갈수록 y좌표가 커짐" << endl;
+            cout << "좌측상단이 (0,0)기준으로 오른쪽으로 갈수록 x좌표가 커짐(0~9), 아래쪽으로 갈수록 y좌표가 커짐(0~9)" << endl;
             cout << "x좌표 입력" << endl;
             cin >> x;
             cout << "y좌표 입력" << endl;
@@ -284,7 +304,7 @@ int main() {
                 d.find_shortest_path(map.player_x, map.player_y, map.enemy_x, map.enemy_y);
             }
             else {
-                cout << "플레이어와 적의 위치를 설정하시오(계속 진행하려면 아무키나 입력)" << endl;
+                cout << "플레이어와 적의 위치를 설정하시오.(계속 진행하려면 아무키나 입력)" << endl;
                 keypress();
             }
             break;
