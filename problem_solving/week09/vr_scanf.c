@@ -39,7 +39,6 @@ int vr_scanf(const char* str, void* a, void* b, void* c, void* d)
     if (index < 4) {
         return -1;
     }
-
     return 0;
 }
 
