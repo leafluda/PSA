@@ -13,7 +13,7 @@ int vr_scanf(const char* str, void* a, void* b, void* c, void* d)
     gets_s(input_str, sizeof(input_str));
 
     // 입력 받은 문자열을 구분자를 기준으로 나누어 변수에 저장합니다.
-    token = strtok(input_str, "|, ");
+    token = strtok(input_str, "|\t, ");
     while (token != NULL) {
         if (index == 0) {
             *((int*)a) = atoi(token);
@@ -32,7 +32,7 @@ int vr_scanf(const char* str, void* a, void* b, void* c, void* d)
             return -1;
         }
         index++;
-        token = strtok(NULL, "|, ");
+        token = strtok(NULL, "|\t, ");
     }
 
     // 입력 받은 변수의 개수가 지정된 개수보다 적을 경우
@@ -52,7 +52,7 @@ int main()
 
     printf("Enter values: ");
 
-    int result = vr_scanf("%d|%c %f,%s", &a, &b, &c, d);
+    int result = vr_scanf("\t%d|%c %f,\t%s", &a, &b, &c, d);
 
     if (result == 0) {
         printf("Values entered: %d %c %f %s\n", a, b, c, d);
