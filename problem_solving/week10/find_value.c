@@ -60,9 +60,19 @@ void copySubstring(char* source, char* destination, const char* substring) {
     char* position = strstr(source, substring); // substring의 위치를 찾음
 
     if (position != NULL) { // substring이 존재하는 경우
-        int length = position - source; // substring 이전까지의 길이 계산
-        strncpy(destination, source, length); // source 문자열의 일부분을 destination에 복사
-        destination[length] = '\0'; // 복사한 문자열의 끝을 표시하기 위해 널 문자를 추가
+
+            int length = position - source; // substring 이전까지의 길이 계산
+            int sublen = strlen(substring);
+            if (position == source)
+            {
+                printf("Error : 값문장의 형식이 형식문장과 다릅니다.");
+                strcpy(destination, substring); // source 문자열의 일부분을 destination에 복사
+                printf("%s\n",destination);
+                destination[sublen] = '\0'; // 복사한 문자열의 끝을 표시하기 위해 널 문자를 추가
+            } else {
+                strncpy(destination, source, length); // source 문자열의 일부분을 destination에 복사
+                destination[length] = '\0'; // 복사한 문자열의 끝을 표시하기 위해 널 문자를 추가
+            }
     } else { // substring이 존재하지 않는 경우
         printf("Error : 값문장의 형식이 형식문장과 다릅니다.");
         exit(0);
