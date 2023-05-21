@@ -66,7 +66,7 @@ void copy_Substring(char* sentence, char* value, char* substring) {
         }
     }
     else { // substring이 존재하지 않는 경우
-        printf("Error : 값문장의 형식이 형식문장과 다릅니다.");
+        printf("Error : 값문장의 형식이 형식 문장과 다릅니다.");
         exit(0);
     }
 }
@@ -223,30 +223,30 @@ int sentence_Test(char* format_Sentence) {
     while (format_Sentence[i] != '\0') { // 문자열에서 \0를 찾을 때 까지 반복
         if (format_Sentence[i] == '%') {  // 해당 문자가 %일때
             if (format_Sentence[i + 1] != 's' && format_Sentence[i + 1] != 'd' && format_Sentence[i + 1] != 'c') { // 뒤에 s,d,c가 오지않는다면
-                printf("Error : 형식문장에 %가 형식문자가 아닌, 단독으로 존재합니다.\n");
+                printf("Error : 형식 문장에 %가 형식 문자가 아닌, 단독으로 존재합니다.\n");
                 exit(0);
             }
             else if (format_Sentence[i + 2] == '%' && (format_Sentence[i + 3] == 'd' || format_Sentence[i + 3] == 's' || format_Sentence[i + 3] == 'c')) { // 바로 형식문자가 온다면
                 if (format_Sentence[i + 1] == format_Sentence[i + 3]) { // 그리고 같은 형식문자가 연달아 나온다면
-                    printf("Notify :같은 형식문자가 연달아 나와 두번째 형식문자를 제거합니다.\n");
+                    printf("Notify :같은 형식 문자가 연달아 나와 두번째 형식 문자를 제거합니다.\n");
                     remove_Substring(format_Sentence, (i + 2));
                     count++;
                 }
                 else {
                     switch (format_Sentence[i + 1]) { // 그리고 형식문자가 연달아 나온다면
                     case 's':
-                        printf("Notify : %%s 이후 다른형식문자가 나와 %%s로 통합되어 저장됩니다.\n");
+                        printf("Notify : %%s 이후 다른 형식 문자가 나와 %%s로 통합되어 저장됩니다.\n");
                         remove_Substring(format_Sentence, (i + 2));
                         count++;
                         break;
 
                     case 'd':
-                        printf("Error : %%d 이후 다른형식문자가 존재합니다.\n");
+                        printf("Error : %%d 이후 다른 형식 문자가 존재합니다.\n");
                         exit(0);
                         break;
 
                     case 'c':
-                        printf("Error : %%d 이후 다른형식문자가 존재합니다.\n");
+                        printf("Error : %%c 이후 다른 형식 문자가 존재합니다.\n");
                         exit(0);
                         break;
                     }
@@ -286,7 +286,7 @@ int main() {
 
     file = fopen("psa.txt", "r"); // 파일 열기
     if (file == NULL) {
-        printf("파일을 열 수 없습니다.");
+        printf("Error : 파일을 열 수 없습니다.\n");
         return 1;
     }
 
