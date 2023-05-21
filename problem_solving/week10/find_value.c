@@ -265,17 +265,22 @@ int sentence_Test(char* format_Sentence) {
 
 /* sentence에서 ""안에 있는 값만 sentence에 다시 저장하는 함수*/
 void extract_quoted_Sentences(char* sentence) {
-    char main_Sentence[1024];
     char* quote_Start = strstr(sentence, "\"");
+    char* quote_End = NULL;
 
     if (quote_Start) {
-        char* quote_End = strstr(quote_Start + 1, "\"");
+        quote_End = strstr(quote_Start + 1, "\"");
+    }
 
-        if (quote_End) {
-            strncpy(main_Sentence, quote_Start + 1, quote_End - quote_Start - 1);
-            main_Sentence[quote_End - quote_Start - 1] = '\0';
-            strcpy(sentence, main_Sentence);
-        }
+    if (quote_Start && quote_End) {
+        char main_Sentence[1024];
+        strncpy(main_Sentence, quote_Start + 1, quote_End - quote_Start - 1);
+        main_Sentence[quote_End - quote_Start - 1] = '\0';
+        strcpy(sentence, main_Sentence);
+    }
+    else {
+        printf("Error: \"\"가 발견되지 않았습니다. 프로그램을 종료합니다.\n");
+        exit(0);
     }
 }
 
