@@ -98,65 +98,65 @@ char get_last_Character(char* format_Sentence, int n) {
 
 /* format_Sentence을 이용해 value_Sentence에서 format_Sequence의 순서에 맞게 형식문자에 해당하는 값을 각 자료형 배열에 저장하는 함수 */
 void find_Value(char* format_Sentence, char* value_Sentence, int* format_Sequence, char** s, int* i, char* c, int index) {
-    char f_s[1024] = ""; // format_sentence를 저장해서 함수 내에서 사용하기 위해 선언
-    char v_s[1024] = ""; // value_sentence를 저장해서 함수 내에서 사용하기 위해 선언
+    char f_S[1024] = ""; // format_sentence를 저장해서 함수 내에서 사용하기 위해 선언
+    char v_S[1024] = ""; // value_sentence를 저장해서 함수 내에서 사용하기 위해 선언
     char value[1024] = ""; // 형식문자에 해당하는 값
     char front[1024] = ""; // 형식문자를 기준으로 앞부분에 해당하는값
     char back[1024] = ""; // 형식문자를 기준으로 다음 형식문자 직전까지 해당하는값
     int s_Index = 0; // 배열에 저장할 때 사용
     int i_Index = 0; // 배열에 저장할 때 사용
     int c_Index = 0; // 배열에 저장할 때 사용
-    char last_first = get_last_Character(format_Sentence, 1); // 형식문장의 마지막 문자
-    char last_second = get_last_Character(format_Sentence, 2); // 형식문장의 마지막 직전문자
+    char last_First = get_last_Character(format_Sentence, 1); // 형식문장의 마지막 문자
+    char last_Second = get_last_Character(format_Sentence, 2); // 형식문장의 마지막 직전문자
 
-    strcpy(f_s, format_Sentence); // format_sentence값을 f_s에 저장
-    strcpy(v_s, value_Sentence); // value_sentence값을 v_s에 저장
+    strcpy(f_S, format_Sentence); // format_sentence값을 f_s에 저장
+    strcpy(v_S, value_Sentence); // value_sentence값을 v_s에 저장
 
     /* 맨앞에 형식문자가 아닐경우 첫번째 형식문자까지 지움 */
-    if (f_s[0] == "%") { // 맨처음 문자가 퍼센트지만
-        if (f_s[1] != "s" || f_s[1] != "d" || f_s[1] != "c") { //바로 뒷문자가 형식문자가 아닐경우
-            copy_Substring(f_s, front, "%");;
-            remove_Substring(f_s, front);
-            remove_Substring(v_s, front);
+    if (f_S[0] == "%") { // 맨처음 문자가 퍼센트지만
+        if (f_S[1] != "s" || f_S[1] != "d" || f_S[1] != "c") { //바로 뒷문자가 형식문자가 아닐경우
+            copy_Substring(f_S, front, "%");;
+            remove_Substring(f_S, front);
+            remove_Substring(v_S, front);
         }
     }
     else { // 맨처음 문자가 퍼센트가 아닐경우
         switch (format_Sequence[0]) {// 다음 형식문자를 확인하고 다음 형식문자 직전의 문자열을 저장
         case 1:
-            copy_Substring(f_s, front, "%s");
+            copy_Substring(f_S, front, "%s");
             break;
 
         case 2:
-            copy_Substring(f_s, front, "%d");
+            copy_Substring(f_S, front, "%d");
             break;
 
         case 3:
-            copy_Substring(f_s, front, "%c");
+            copy_Substring(f_S, front, "%c");
             break;
         }
-        remove_Substring(f_s, front);
-        remove_Substring(v_s, front);
+        remove_Substring(f_S, front);
+        remove_Substring(v_S, front);
     }
 
     /* 값 추출 */
     for (int j = 0; j < index; j++) {
-        remove_Characters(f_s, 2); // 형식문자 삭제
+        remove_Characters(f_S, 2); // 형식문자 삭제
         if (j < index - 1) {
             switch (format_Sequence[j + 1]) { // 다음 형식문자를 확인하고 다음 형식문자 직전의 문자열을 저장
             case 1:
-                copy_Substring(f_s, back, "%s");
+                copy_Substring(f_S, back, "%s");
                 break;
 
             case 2:
-                copy_Substring(f_s, back, "%d");
+                copy_Substring(f_S, back, "%d");
                 break;
 
             case 3:
-                copy_Substring(f_s, back, "%c");
+                copy_Substring(f_S, back, "%c");
                 break;
             }
-            remove_Substring(f_s, back); // 형식문자 사이의 문자열까지 지움
-            copy_Substring(v_s, value, back); // 형식문자에 해당하는 값 추출
+            remove_Substring(f_S, back); // 형식문자 사이의 문자열까지 지움
+            copy_Substring(v_S, value, back); // 형식문자에 해당하는 값 추출
             switch (format_Sequence[j]) { // 해당 형식문자에 해당하는 자료형 배열에 저장
             case 1:
                 s[s_Index] = strdup(value);
@@ -174,31 +174,31 @@ void find_Value(char* format_Sentence, char* value_Sentence, int* format_Sequenc
                 break;
             }
             strcat(value, back); // 다음 형식문자 직전까지 추출
-            remove_Substring(v_s, value); // 다음 형식문자 직전까지 제거         
+            remove_Substring(v_S, value); // 다음 형식문자 직전까지 제거         
         }
         else {
-            if (last_second == '%') { // 마지막에서 두번째 문자가 %이고
-                if (last_first == 's' || last_first == 'd' || last_first == 'c') { // 마지막문자가 s, d, c일경우 
+            if (last_Second == '%') { // 마지막에서 두번째 문자가 %이고
+                if (last_First == 's' || last_First == 'd' || last_First == 'c') { // 마지막문자가 s, d, c일경우 
                     switch (format_Sequence[j]) { // 나머지 문자열을 형식문자에 해당하는 자료형 배열에 저장
                     case 1:
-                        s[s_Index] = strdup(v_s);
+                        s[s_Index] = strdup(v_S);
                         s_Index++;
                         break;
 
                     case 2:
-                        i[i_Index] = atoi(v_s);
+                        i[i_Index] = atoi(v_S);
                         i_Index++;
                         break;
 
                     case 3:
-                        c[c_Index] = v_s[0];
+                        c[c_Index] = v_S[0];
                         c_Index++;
                         break;
                     }
                 }
             }
             else { // 마지막 형식문자 뒤에 문자열이 있을경우
-                copy_Substring(v_s, value, f_s); // 형식문자 이후에 문자열을 추출
+                copy_Substring(v_S, value, f_S); // 형식문자 이후에 문자열을 추출
                 switch (format_Sequence[j]) { // 해당 형식문자에 해당하는 자료형 배열에 저장
                 case 1:
                     s[s_Index] = strdup(value);
