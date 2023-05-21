@@ -40,8 +40,7 @@ void remove_Characters(char* sentence, int n) {
         // 문자열의 길이보다 크거나 같은 값을 입력한 경우
         // 전체 문자열을 제거
         sentence[0] = '\0';
-    }
-    else if (n > 0) {
+    } else if (n > 0) {
         // n이 0보다 큰 경우
         // n개의 문자를 제거하고 나머지 문자열을 앞으로 당김
         memmove(sentence, sentence + n, length - n + 1);
@@ -61,8 +60,7 @@ void copy_Substring(char* sentence, char* value, char* substring) {
         {
             strcpy(value, substring); // sentence 문자열의 일부분을 value에 복사
             value[substring_Length] = '\0'; // 복사한 문자열의 끝을 표시하기 위해 널 문자를 추가
-        }
-        else {
+        } else {
             strncpy(value, sentence, length); // sentence 문자열의 일부분을 value에 복사
             value[length] = '\0'; // 복사한 문자열의 끝을 표시하기 위해 널 문자를 추가
         }
@@ -119,8 +117,7 @@ void find_Value(char* format_Sentence, char* value_Sentence, int* format_Sequenc
             remove_Substring(f_S, front);
             remove_Substring(v_S, front);
         }
-    }
-    else { // 맨처음 문자가 퍼센트가 아닐경우
+    } else { // 맨처음 문자가 퍼센트가 아닐경우
         switch (format_Sequence[0]) {// 다음 형식 문자를 확인하고 다음 형식 문자 직전의 문자열을 저장
         case 1:
             copy_Substring(f_S, front, "%s");
@@ -175,8 +172,7 @@ void find_Value(char* format_Sentence, char* value_Sentence, int* format_Sequenc
             }
             strcat(value, back); // 다음 형식 문자 직전까지 추출
             remove_Substring(v_S, value); // 다음 형식 문자 직전까지 제거         
-        }
-        else {
+        } else {
             if (last_Second == '%') { // 마지막에서 두 번째 문자가 %이고
                 if (last_First == 's' || last_First == 'd' || last_First == 'c') { // 마지막 문자가 s, d, c일경우 
                     switch (format_Sequence[j]) { // 나머지 문자열을 형식 문자에 해당하는 자료형 배열에 저장
@@ -196,8 +192,7 @@ void find_Value(char* format_Sentence, char* value_Sentence, int* format_Sequenc
                         break;
                     }
                 }
-            }
-            else { // 마지막 형식 문자 뒤에 문자열이 있을경우
+            } else { // 마지막 형식 문자 뒤에 문자열이 있을경우
                 copy_Substring(v_S, value, f_S); // 형식 문자 이후에 문자열을 추출
                 switch (format_Sequence[j]) { // 해당 형식 문자에 해당하는 자료형 배열에 저장
                 case 1:
@@ -277,8 +272,7 @@ void extract_quoted_Sentences(char* sentence) {
         strncpy(main_Sentence, quote_Start + 1, quote_End - quote_Start - 1);
         main_Sentence[quote_End - quote_Start - 1] = '\0';
         strcpy(sentence, main_Sentence);
-    }
-    else {
+    } else {
         printf("Error: \"\"가 발견되지 않았습니다. 프로그램을 종료합니다.\n");
         exit(0);
     }
@@ -307,7 +301,7 @@ int main() {
 
     if (sentence_Test(value_Sentence) > 0) { // 형식 문장을 수정시 출력
         printf("\n수정된 형식 문장 : %s\n", &format_Sentence);
-        printf("         값 문장 : %s\n\n", &value_Sentence);
+        printf("           값 문장 : %s\n\n", &value_Sentence);
     }
 
     /*----------------------------------동적할당----------------------------------*/
