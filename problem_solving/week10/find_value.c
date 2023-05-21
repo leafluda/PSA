@@ -4,7 +4,7 @@
 #include <string.h>
 #include <stdlib.h>
 
-/* format_Sentence에 형식문자가 종류별로 몇개인지 확인하기 위한 함수 */
+/* format_Sentence에 형식 문자가 종류별로 몇개인지 확인하기 위한 함수 */
 int check_Count(char* format_Sentence, int* int_Num, int* string_Num, int* char_Num, int* format_Sequence) {
     char* sentence = format_Sentence;
     int index = 0;
@@ -12,8 +12,8 @@ int check_Count(char* format_Sentence, int* int_Num, int* string_Num, int* char_
     while ((sentence = strchr(sentence, '%')) != NULL) { // 문자열의 첫번째 위치부터 끝까지 확인 
         switch (*(sentence + 1)) {
         case 's':
-            (*string_Num)++; // 각 형식문자에 해당하는 Num을 1씩 올림
-            format_Sequence[index] = 1; // 형식문자 순서를 format_Sequence에 저장
+            (*string_Num)++; // 각 형식 문자에 해당하는 Num을 1씩 올림
+            format_Sequence[index] = 1; // 형식 문자 순서를 format_Sequence에 저장
             break;
 
         case 'd':
