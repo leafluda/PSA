@@ -315,12 +315,12 @@ int main() {
     int format_Sequence[100]; // 형식문자의 순서 저장
     int int_Num = 0, string_Num = 0, char_Num = 0, j = 0; // 각 형식문자의 개수저장 , 반복문을 위한 변수 선언
     int index = check_Count(format_Sentence, &int_Num, &string_Num, &char_Num, format_Sequence);
-    char** s = (char**)malloc(string_Num * sizeof(char*)); // %s개수만큼 동적핳당
+    char** s = (char**)malloc(string_Num * sizeof(char*)); // %s개수만큼 동적할당
     for (j = 0; j < string_Num; j++) {
         s[j] = (char*)malloc(1024 * sizeof(char)); // 각각의 문자열 크기는 1024으로 가정
     }
-    int* i = (int*)malloc(int_Num * sizeof(int)); // %d개수만큼 동적핳당
-    char* c = (char*)malloc(char_Num * sizeof(char)); //%c개수만큼 동적핳당
+    int* i = (int*)malloc(int_Num * sizeof(int)); // %d개수만큼 동적할당
+    char* c = (char*)malloc(char_Num * sizeof(char)); //%c개수만큼 동적할당
 
     /*----------------------------------기능구현----------------------------------*/
 
