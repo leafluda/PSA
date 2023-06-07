@@ -80,13 +80,14 @@ class Scene {
 
 public:
 
-    ostringstream output; // 출력용
+    string output; // 출력용
     string ScreenBuffer[39][100]; // x 100, y 40
     vector<Object*> objects;
     Utility u;
 
 
     Scene() {
+        output = "";
         ClearScreenBuf();
     }
 
@@ -95,16 +96,17 @@ public:
         for (Object* obj : objects) {
             obj->Render(*this);
         }
-        output.str("");
+        output = "";
+
         for (int i = 0; i < 39; i++)
         {
             for (int j = 0; j < 100; j++)
             {
-                output << ScreenBuffer[i][j];
+                output += ScreenBuffer[i][j];
             }
-            output << Reset"\n";
+            output += Reset"\n";
         }
-        cout << output.str();
+        cout << output;
         cout << "점수 : " << score << " , 속도 : " << speed;
         cout.flush();
     }
@@ -126,109 +128,6 @@ public:
     }
 };
 
-// 플레이어 모양을 저장하고 플레이어가 사용할 함수 선언
-class Player : public Object
-{
-
-public:
-    Utility u;
-    int MoveCount;
-    bool IsJump;
-    bool IsFalling;
-    int JumpCount;
-    int ObjectYDefault;
-
-    Player(int x, int y, int width, int height) : Object(width, height) {
-        X = x;
-        Y = y;
-        ObjectYDefault = y;
-        Active = true;
-        MoveCount = 0;
-        JumpCount = 0;
-        IsFalling = false;
-        IsJump = false;
-        Width = width;
-        Height = height;
-        ImagePaste();
-    }
-    
-    string defaultimage[10][10] = {
-        {"  ","  ","  ","  ",Lmint"■" Reset,"  ","  ","  ","  ","  "},
-        {"  ","  ","  ",Lmint"■",Lmint"■" Reset,"  ","  ","  ","  ","  "},
-        {"  ","  ",Lmint"■",Lmint"■",Lmint"■",Lmint"■" Reset,"  ","  ","  ","  "},
-        {"  ",White"■",White"■",Lmint"■",Lmint"■",Lmint"■",Mint"■",Mint"■" Reset,"  ","  "},
-        {Lmint"■",White"■",White"■",Lmint"■",Lmint"■",Lmint"■",Lmint"■",Mint"■",Mint"■" Reset,"  "},
-        {Lmint"■",Lmint"■",Lmint"■",TextWhite BgBlack"▣",Lmint"■",Lmint"■",Lmint"■",TextWhite BgBlack"▣",Mint"■",Lblue"■" Reset},
-        {Lmint"■",White"■",Lmint"■",Lmint"■",Lmint"■",TextBlack BgLmint"▲",Lmint"■",Lmint"■",Mint"■",Lblue"■" Reset},
-        {Lmint"■",Lmint"■",Lmint"■",Lmint"■",Lmint"■",Lmint"■",Lmint"■",Mint"■",Lblue"■",White"■" Reset},
-        {"  ",Lmint"■",Lmint"■",Lmint"■",Mint"■",Mint"■",Mint"■",Lblue"■",White"■" Reset,"  "},
-        {"  ","  ",Mint"■",Mint"■",Lblue"■",Lblue"■",Lblue"■" Reset,"  ","  ","  "}
-    };
-
-    void Render(Scene& s) {
-        for (int i = 0; i < Height; i++)
-        {
-            for (int j = 0; j < Width; j++)
-            {
-                if (image[i][j] != "  ")
-                {
-                    s.ScreenBuffer[Y + i][X + j] = image[i][j];
-                }
-            }
-        }
-    }
-
-    void ImagePaste() {
-        for (int i = 0; i < Height; i++) {
-            for (int j = 0; j < Width; j++) {
-                image[i][j] = defaultimage[i][j];
-            }
-        }
-    }
-
-    void MovePlayer() {
-        if (IsJump == false) {
-            if (MoveCount < 2) {
-                Y++;
-                MoveCount++;
-            }
-            else {
-                Y--;
-                MoveCount++;
-                if (MoveCount >= 4)
-                {
-                    MoveCount = 0;
-                }
-            }
-        }
-        else {
-            MoveCount = 0;
-        }
-    }
-
-    void JumpPlayer() {
-        if (IsJump == true) {
-            if (IsFalling == false) {
-                Y--;
-                JumpCount++;
-                if (JumpCount >= 15)
-                {
-                    IsFalling = true;
-                }
-            }
-            else if (IsFalling == true) {
-                Y++;
-                JumpCount--;
-                if (JumpCount <= 1)
-                {
-                    IsFalling = false;
-                    IsJump = false;
-                    Y = ObjectYDefault;
-                }
-            }
-        }
-    }
-};
 
 class Cloud : public Object
 {
@@ -533,10 +432,127 @@ public :
                         X = 100;
                     }
         }
+        
+};
+
+class Player : public Object
+{
+
+public:
+    Utility u;
+    int MoveCount;
+    bool IsJump;
+    bool IsFalling;
+    int JumpCount;
+    int ObjectYDefault;
+
+    Player(int x, int y, int width, int height) : Object(width, height) {
+        X = x;
+        Y = y;
+        ObjectYDefault = y;
+        Active = true;
+        MoveCount = 0;
+        JumpCount = 0;
+        IsFalling = false;
+        IsJump = false;
+        Width = width;
+        Height = height;
+        ImagePaste();
+    }
+
+    string defaultimage[10][10] = {
+        {"  ","  ","  ","  ",Lmint"■" Reset,"  ","  ","  ","  ","  "},
+        {"  ","  ","  ",Lmint"■",Lmint"■" Reset,"  ","  ","  ","  ","  "},
+        {"  ","  ",Lmint"■",Lmint"■",Lmint"■",Lmint"■" Reset,"  ","  ","  ","  "},
+        {"  ",White"■",White"■",Lmint"■",Lmint"■",Lmint"■",Mint"■",Mint"■" Reset,"  ","  "},
+        {Lmint"■",White"■",White"■",Lmint"■",Lmint"■",Lmint"■",Lmint"■",Mint"■",Mint"■" Reset,"  "},
+        {Lmint"■",Lmint"■",Lmint"■",TextWhite BgBlack"▣",Lmint"■",Lmint"■",Lmint"■",TextWhite BgBlack"▣",Mint"■",Lblue"■" Reset},
+        {Lmint"■",White"■",Lmint"■",Lmint"■",Lmint"■",TextBlack BgLmint"▲",Lmint"■",Lmint"■",Mint"■",Lblue"■" Reset},
+        {Lmint"■",Lmint"■",Lmint"■",Lmint"■",Lmint"■",Lmint"■",Lmint"■",Mint"■",Lblue"■",White"■" Reset},
+        {"  ",Lmint"■",Lmint"■",Lmint"■",Mint"■",Mint"■",Mint"■",Lblue"■",White"■" Reset,"  "},
+        {"  ","  ",Mint"■",Mint"■",Lblue"■",Lblue"■",Lblue"■" Reset,"  ","  ","  "}
+    };
+
+    void Render(Scene& s) {
+        for (int i = 0; i < Height; i++)
+        {
+            for (int j = 0; j < Width; j++)
+            {
+                if (image[i][j] != "  ")
+                {
+                    s.ScreenBuffer[Y + i][X + j] = image[i][j];
+                }
+            }
+        }
+    }
+
+    void ImagePaste() {
+        for (int i = 0; i < Height; i++) {
+            for (int j = 0; j < Width; j++) {
+                image[i][j] = defaultimage[i][j];
+            }
+        }
+    }
+
+    void MovePlayer() {
+        if (IsJump == false) {
+            if (MoveCount < 2) {
+                Y++;
+                MoveCount++;
+            }
+            else {
+                Y--;
+                MoveCount++;
+                if (MoveCount >= 4)
+                {
+                    MoveCount = 0;
+                }
+            }
+        }
+        else {
+            MoveCount = 0;
+        }
+    }
+
+    void JumpPlayer() {
+        if (IsJump == true) {
+            if (IsFalling == false) {
+                Y--;
+                JumpCount++;
+                if (JumpCount >= 18)
+                {
+                    IsFalling = true;
+                }
+            }
+            else if (IsFalling == true) {
+                Y++;
+                JumpCount--;
+                if (JumpCount <= 1)
+                {
+                    IsFalling = false;
+                    IsJump = false;
+                    Y = ObjectYDefault;
+                }
+            }
+        }
+    }
+
+    void Collider(Sword &sw) { // 교체
+        if (sw.X >= X && sw.X <= X + 10)
+        {
+            if ( (Y + 9) >= 28)
+            {
+                exit(0);
+            }
+        }
+    }
+
 };
 
 int main() {
-
+    std::ios::sync_with_stdio(false); // 표준 입출력 가속화
+    std::cin.tie(NULL);
+    std::cout.tie(NULL);
     system("mode con cols=202 lines=42");
 
     Utility u;
@@ -552,7 +568,7 @@ int main() {
 
     Mountain m(20, 17, 55, 22);
 
-    Sword sw( 90 , 27, 1, 12);
+    Sword sw( 90 , 28, 1, 12);
 
     int speed = 1;
     int score = 0;
@@ -579,7 +595,7 @@ int main() {
             }
         }
         p.JumpPlayer();
-        //p.MovePlayer();
+        p.MovePlayer();
         c1.MoveCloud();
         c2.MoveCloud();
         c3.MoveCloud();
@@ -587,6 +603,7 @@ int main() {
         g.MoveGround();
         sw.MoveSword();
         s.Draw(score, speed);
+        p.Collider(sw);
 
         auto endTime = chrono::high_resolution_clock::now();
 
