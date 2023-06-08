@@ -58,7 +58,8 @@
 #define Lyellow TextLyellow BgLyellow
 #define Lblue TextLblue BgLblue
 #define Lpink TextLpink BgLpink
-#define Lmint TextLmint BgLmint
+#define Lmint TextLmint BgLmint 
 #define White TextWhite BgWhite
+#define Text TextBlack BgWhite
 
 #define Reset "\033[0m"
