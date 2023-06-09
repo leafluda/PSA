@@ -7,16 +7,11 @@
 #include <thread>
 #include <chrono>
 #include "Colors.hpp"
-#include <variant>
+#include <fstream>
 
 using namespace std;
 
-class Utility {
-
-public:
-    Utility() {}
-
-    void gotoxy(int x, int y) { // 커서 위치 이동용
+void gotoxy(int x, int y) { // 커서 위치 이동용
 
         COORD Pos = { x,y };
         //커서 이동
@@ -26,8 +21,8 @@ public:
         ConsoleCursor.bVisible = false;
         ConsoleCursor.dwSize = 1;
         SetConsoleCursorInfo(GetStdHandle(STD_OUTPUT_HANDLE), &ConsoleCursor);
-    }
-};
+}
+
 
 class Scene;
 
@@ -35,18 +30,16 @@ class Object {
 
 public:
 
-    //오브젝트의 좌측 상단 좌표
-    int X;
+    int X;//오브젝트의 좌측 상단 좌표
     int Y;
-
+    int DefaultX;
+    int DefaultY;
     int Width; //가로
     int Height; //세로
-
-    //이 오브젝트가 그려지는지 안그려지는지
-    bool Active;
+    bool Active;//이 오브젝트가 그려지는지 안그려지는지
 
     //오브젝트 이미지
-    string** image;
+    string** Image;
 
     //가로세로 값을 받아서 이미지 동적할당
     Object(int width, int height) {
@@ -56,83 +49,83 @@ public:
         Width = width;
         Height = height;
 
-        image = new string * [Height];
-        for (int i = 0; i < Height; i++)
-        {
-            image[i] = new string[Width];
+        Image = new string * [Height];
+        for (int i = 0; i < Height; i++) {
+            Image[i] = new string[Width];
         }
     }
 
     //소멸자에서 할당된 메모리 해제
     ~Object() {
         for (int i = 0; i < Height; i++) {
-            delete[] image[i];
+            delete[] Image[i];
         }
-        delete[] image;
+        delete[] Image;
     }
 
     virtual void Render(Scene& s) {}
 
     virtual void ImagePaste() {}
+
+    virtual void ResetPos() {}
 };
 
 class Scene {
 
 public:
 
-    string output; // 출력용
+    string Output; // 출력용
     string ScreenBuffer[39][100]; // x 100, y 40
-    vector<Object*> objects;
-    Utility u;
-
+    vector<Object*> Objects;
 
     Scene() {
-        output = "";
+        Output = "";
         ClearScreenBuf();
     }
 
     // Active한 Object의 Render를 호출해 ScreenBuffer에 저장하고 ScreenBuffer 출력
     void Draw() {
-        for (Object* obj : objects) {
-            if (obj->Active == true)
-            {
+        for (Object* obj : Objects) {
+            if (obj->Active == true) {
                 obj->Render(*this);
             }
         }
-        output = "";
-
-        for (int i = 0; i < 39; i++)
-        {
-            for (int j = 0; j < 100; j++)
-            {
-                output += ScreenBuffer[i][j];
+        Output = "";
+        for (int i = 0; i < 39; i++) {
+            for (int j = 0; j < 100; j++) {
+                Output += ScreenBuffer[i][j];
             }
-            output += Reset"\n";
+            Output += Reset"\n";
         }
-        cout << output;
+        cout << Output;
         cout.flush();
     }
 
     // ScreenBuffer에 저장된 Object를 지워 ScreenBuffer를 초기화
     void ClearScreenBuf() {
-        for (int i = 0; i < 39; i++)
-        {
-            for (int j = 0; j < 100; j++)
-            {
+        for (int i = 0; i < 39; i++) {
+            for (int j = 0; j < 100; j++) {
                 ScreenBuffer[i][j] = "  ";
+            }
+        }
+    }
+
+    void ResetObject() {
+        for (Object* obj : Objects) {
+            if (obj->Active == true) {
+                obj->ResetPos();
             }
         }
     }
 
     //object벡터에 오브젝트추가하는 함수
     void AddObject(Object& o) {
-        objects.push_back(&o);
+        Objects.push_back(&o);
     }
 };
 
 
-class Cloud : public Object
-{
+class Cloud : public Object {
 public:
     int MoveCount;
     int MoveSpeed;
@@ -140,41 +133,50 @@ public:
     Cloud(int x, int y, int width, int height, int speed) : Object(width, height) {
         X = x;
         Y = y;
-        Active = true;
-        MoveCount = 0;
+        DefaultX = x;
+        DefaultY = y;
         Width = width;
         Height = height;
         MoveSpeed = speed;
+        Active = true;
+        MoveCount = 0;
         ImagePaste();
     }
 
-    string defaultimage[8][15] = {
-        {"  ", "  ", "  ", "  ", "  ", "  ", "  ", "  ", "  " , "  ", "  ", "  ", "  ", "  ", "  "},
-        {"  ", "  ", "  ", "  ", "  ", "  ", White"■", White"■" Reset, "  " , "  ", "  ", "  ", "  ", "  ", "  "},
-        {"  ", "  ", White"■", White"■" Reset, "  ", White"■", White"■", White"■", White"■" Reset, "  ", "  ", Lgray"■", White"■" Reset, "  ", "  "},
-        {"  ", White"■", White"■", White"■", White"■", White"■", White"■", White"■", White"■" Reset, "  ", Lgray"■", White"■", White"■", White"■" Reset, "  "},
-        {"  ", White"■", White"■", White"■", Lgray"■", White"■", White"▦", White"■", White"■" , Lgray"■", White"■", White"■", White"■", White"■", White"■" Reset},
-        {Lgray"■", Lgray"■", White"■", Lgray"■", Lgray"■", White"■", White"■", White"■", Lgray"■", Lgray"■", Lgray"■", White"■", White"■", White"■", Lgray"■" Reset},
-        {Lgray"■", Lgray"■", Lgray"■", Lgray"■", Lgray"■", Lgray"■", Lgray"■", Lgray"■", Lgray"■", Lgray"■", Lgray"■", Lgray"■", Lgray"■", Lgray"■", Lgray"■" Reset},
-        {"  ", Lgray"■", Lgray"■", Lgray"■", Lgray"■", Lgray"■", Lgray"■", Lgray"■", Lgray"■", Lgray"■", Lgray"■",Lgray"■", Lgray"■", Lgray"■" Reset, "  "}
+    string DefaultImage[7][15] = {
+        {"  ","  ","  ","  ","  ","  ","■","■","  ","  ","  ","  ","  ","  ","  "},
+
+        {"  ","  ","■","■","  ","■","■","■","■","  ","  ","▦","■","  ","  "},
+
+        {"  ","■","■","■","■","■","■","■","■","  ","▦","■","■","■","  "},
+
+        {"  ","■","■","■","▦","■","■","■","■","▦","■","■","■","■","■"},
+
+        {"▦","▦","■","▦","▦","■","■","■","▦","▦","▦","■","■","■","▦"},
+
+        {"▦","▦","▦","▦","▦","▦","▦","▦","▦","▦","▦","▦","▦","▦","▦"},
+
+        {"  ","▦","▦","▦","▦","▦","▦","▦","▦","▦","▦","▦","▦","▦","  "}
     };
 
     void setActive(bool b) {
         Active = b;
     }
+    
+    void ResetPos() {
+        X = DefaultX;
+        Y = DefaultY;
+        Active = true;
+        MoveCount = 0;
+    }
 
     void Render(Scene& s) {
-        for (int i = 0; i < Height; i++)
-        {
-            if ((Y + i) < 39)
-            {
-                for (int j = 0; j < Width; j++)
-                {
-                    if (0 <= (X + j) && (X + j) < 100)
-                    {
-                        if (image[i][j] != "  ")
-                        {
-                            s.ScreenBuffer[Y + i][X + j] = image[i][j];
+        for (int i = 0; i < Height; i++) {
+            if ((Y + i) < 39) {
+                for (int j = 0; j < Width; j++) {
+                    if (0 <= (X + j) && (X + j) < 100) {
+                        if (Image[i][j] != "  ") {
+                            s.ScreenBuffer[Y + i][X + j] = Image[i][j];
                         }
                     }
                 }
@@ -183,9 +185,19 @@ public:
     }
 
     void ImagePaste() {
-        for (int i = 0; i < 8; i++) {
+        for (int i = 0; i < 7; i++) {
             for (int j = 0; j < 15; j++) {
-                image[i][j] = defaultimage[i][j];
+                if (DefaultImage[i][j] == "■") {
+                    DefaultImage[i][j] = White"■";
+                } else if (DefaultImage[i][j] == "▦") {
+                    DefaultImage[i][j] = Lgray"▦";
+                } else if (DefaultImage[i][j] == "  " && j != 0 && DefaultImage[i][j - 1] != "  ") {
+                    DefaultImage[i][j] = Reset"  ";
+                }
+                Image[i][j] = DefaultImage[i][j];
+                if (j==14) {
+                    Image[i][j] += Reset;
+                }
             }
         }
     }
@@ -197,15 +209,13 @@ public:
                 X = 100;
             }
             MoveCount = 0;
-        }
-        else {
+        } else {
             MoveCount++;
         }
     }
 };
 
-class Mountain : public Object
-{
+class Mountain : public Object {
 public:
     int MoveCount;
     int MoveSpeed;
@@ -213,6 +223,8 @@ public:
     Mountain(int x, int y, int width, int height) : Object(width, height) {
         X = x;
         Y = y;
+        DefaultX = x;
+        DefaultY = y;
         Active = true;
         MoveCount = 0;
         Width = width;
@@ -221,7 +233,7 @@ public:
         ImagePaste();
     }
 
-    string defaultimage[22][46] = {
+    string DefaultImage[22][46] = {
 
         {"  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","▣","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  "},
 
@@ -273,16 +285,19 @@ public:
         Active = b;
     }
 
+    void ResetPos() {
+        X = DefaultX;
+        Y = DefaultY;
+        Active = true;
+        MoveCount = 0;
+    }
+
     void Render(Scene& s) {
-        for (int i = 0; i < Height; i++)
-        {
-            if ((Y + i) < 39)
-            {
-                for (int j = 0; j < Width; j++)
-                {
-                    if (0 <= (X + j) && (X + j) < 100 && image[i][j] != "  ")
-                    {
-                        s.ScreenBuffer[Y + i][X + j] = image[i][j];
+        for (int i = 0; i < Height; i++) {
+            if ((Y + i) < 39) {
+                for (int j = 0; j < Width; j++) {
+                    if (0 <= (X + j) && (X + j) < 100 && Image[i][j] != "  ") {
+                        s.ScreenBuffer[Y + i][X + j] = Image[i][j];
                     }
                 }
             }
@@ -292,21 +307,16 @@ public:
     void ImagePaste() {
         for (int i = 0; i < 22; i++) {
             for (int j = 0; j < 46; j++) {
-                if (defaultimage[i][j] == "■")
-                {
-                    defaultimage[i][j] = White"■";
+                if (DefaultImage[i][j] == "■") {
+                    DefaultImage[i][j] = White"■";
+                } else if (DefaultImage[i][j] == "▣") {
+                    DefaultImage[i][j] = Lgray"▣";
+                } else if (DefaultImage[i][j] == "▧") {
+                    DefaultImage[i][j] = Gray"▧";
+                } else if (DefaultImage[i][j] == "  " && j != 0 && DefaultImage[i][j - 1] != "  ") {
+                    DefaultImage[i][j] = Reset"  ";
                 }
-                else if (defaultimage[i][j] == "▣") {
-                    defaultimage[i][j] = Lgray"▣";
-                }
-                else if (defaultimage[i][j] == "▧") {
-                    defaultimage[i][j] = Gray"▧";
-                }
-                else if (defaultimage[i][j] == "  " && j != 0 && defaultimage[i][j - 1] != "  ")
-                {
-                    defaultimage[i][j] = "  " Reset;
-                }
-                image[i][j] = defaultimage[i][j];
+                Image[i][j] = DefaultImage[i][j];
             }
         }
     }
@@ -318,15 +328,13 @@ public:
                 X = 100;
             }
             MoveCount = 0;
-        }
-        else {
+        } else {
             MoveCount++;
         }
     }
 };
 
-class Ground : public Object
-{
+class Ground : public Object {
 
 public:
     int FlowerCount;
@@ -334,6 +342,8 @@ public:
     Ground(int width, int height) : Object(width, height) {
         X = 0;
         Y = 35;
+        DefaultX = 0;
+        DefaultY = 35;
         Active = true;
         FlowerCount = 0;
         Width = width;
@@ -343,18 +353,14 @@ public:
 
     string tempImage[4][100];
 
-    void SetImage()
-    {
-        for (int i = 0; i < 4; i++)
-        {
-            for (int j = 0; j < 100; j++)
-            {
+    void SetImage() {
+        for (int i = 0; i < 4; i++) {
+            for (int j = 0; j < 100; j++) {
                 if ((FlowerCount + i) == 8) {
-                    image[i][j] = Lgreen"■";
+                    Image[i][j] = Lgreen"■";
                     FlowerCount = 0;
-                }
-                else {
-                    image[i][j] = Green"■";
+                } else {
+                    Image[i][j] = Green"■";
                     FlowerCount++;
                 }
             }
@@ -365,18 +371,21 @@ public:
         Active = b;
     }
 
+    void ResetPos() {
+        X = DefaultX;
+        Y = DefaultY;
+        Active = true;
+        FlowerCount = 0;
+    }
+
+
     void Render(Scene& s) {
-        for (int i = 0; i < Height; i++)
-        {
-            if ((Y + i) < 39)
-            {
-                for (int j = 0; j < Width; j++)
-                {
-                    if (0 <= (X + j) && (X + j) < 100)
-                    {
-                        if (image[i][j] != "  ")
-                        {
-                            s.ScreenBuffer[Y + i][X + j] = image[i][j];
+        for (int i = 0; i < Height; i++) {
+            if ((Y + i) < 39) {
+                for (int j = 0; j < Width; j++) {
+                    if (0 <= (X + j) && (X + j) < 100) {
+                        if (Image[i][j] != "  ") {
+                            s.ScreenBuffer[Y + i][X + j] = Image[i][j];
                         }
                     }
                 }
@@ -385,25 +394,17 @@ public:
     }
 
     void MoveGround() {
-        for (int i = 0; i < Height; i++)
-        {
-            for (int j = 0; j < Width; j++)
-            {
-                tempImage[i][j] = image[i][j];
+        for (int i = 0; i < Height; i++) {
+            for (int j = 0; j < Width; j++) {
+                tempImage[i][j] = Image[i][j];
             }
         }
 
-        for (int i = 0; i < Height; i++)
-        {
-            for (int j = 0; j < (Width - 1); j++)
-            {
-                image[i][j] = tempImage[i][j + 1];
+        for (int i = 0; i < Height; i++) {
+            for (int j = 0; j < (Width - 1); j++) {
+                Image[i][j] = tempImage[i][j + 1];
             }
-        }
-
-        for (int i = 0; i < Height; i++)
-        {
-            image[i][99] = tempImage[i][0];
+            Image[i][99] = tempImage[i][0];
         }
     }
 };
@@ -414,24 +415,26 @@ public:
     int MoveCount;
     bool IsFalling;
 
-    string defaultimage[12][1] = {
-        {Red"■" Reset},
+    string DefaultImage[12][1] = {
+                    {Red"■" Reset},
         {BgRed TextWhite"◆" Reset},
         {BgRed TextWhite"◆" Reset},
         {BgRed TextWhite"◆" Reset},
-        {Yellow"  " Reset},
-        {White"  " Reset},
-        {White"  " Reset},
-        {White"  " Reset},
-        {White"  " Reset},
-        {White"  " Reset},
-        {White"  " Reset},
-        {White"  " Reset}
+                 {Yellow"  " Reset},
+                  {White"  " Reset},
+                  {White"  " Reset},
+                  {White"  " Reset},
+                  {White"  " Reset},
+                  {White"  " Reset},
+                  {White"  " Reset},
+                  {White"  " Reset}
     };
 
     Sword(int x, int y, int width, int height, bool isfalling) : Object(width, height) {
         X = x;
         Y = y;
+        DefaultX = x;
+        DefaultY = y;
         Active = true;
         Width = width;
         Height = height;
@@ -441,7 +444,7 @@ public:
 
     void ImagePaste() {
         for (int i = 0; i < 12; i++) {
-            image[i][0] = defaultimage[i][0];
+            Image[i][0] = DefaultImage[i][0];
         }
     }
 
@@ -450,8 +453,8 @@ public:
             if ((Y + i) < 39) {
                 for (int j = 0; j < Width; j++) {
                     if (0 <= (X + j) && (X + j) < 100) {
-                        if (image[i][j] != "  ") {
-                            s.ScreenBuffer[Y + i][X + j] = image[i][j];
+                        if (Image[i][j] != "  ") {
+                            s.ScreenBuffer[Y + i][X + j] = Image[i][j];
                         }
                     }
                 }
@@ -459,9 +462,16 @@ public:
         }
     }
 
+    void ResetPos() {
+        X = DefaultX;
+        Y = DefaultY;
+        Active = true;
+        IsFalling = true;
+    }
+
+
     void MoveSword() {
-        if (IsFalling == false)
-        {
+        if (IsFalling == false) {
             X--;
             if (X + Width < 0) {
                 X = 100;
@@ -470,23 +480,264 @@ public:
     }
 
     void FallingSword() {
-        if (IsFalling == true)
-        {
+        if (IsFalling == true) {
             Y++;
-            if (Y > 26)
-            {
+            if (Y > 26) {
                 IsFalling = false;
             }
         }
     }
 };
 
+class PauseUi : public Object {
+public:
+
+    string DefaultImage[18][38];
+
+    string PauseImage[18][38] = {
+        {"▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤"},
+
+        {"▤","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","▤"},
+
+        {"▤","□","■","■","■","■","■","■","□","□","□","■","■","□","□","□","■","■","□","□","■","■","□","■","■","■","■","■","■","□","■","■","■","■","■","■","□","▤"},
+
+        {"▤","□","■","■","■","■","■","■","□","□","■","■","■","■","□","□","■","■","□","□","■","■","□","■","■","■","■","■","■","□","■","■","■","■","■","■","□","▤"},
+
+        {"▤","□","■","■","□","□","■","■","□","■","■","■","■","■","■","□","■","■","□","□","■","■","□","■","■","□","□","□","□","□","■","■","□","□","□","□","□","▤"},
+
+        {"▤","□","■","■","□","□","■","■","□","■","■","□","□","■","■","□","■","■","□","□","■","■","□","■","■","□","□","□","□","□","■","■","□","□","□","□","□","▤"},
+
+        {"▤","□","■","■","■","■","■","■","□","■","■","□","□","■","■","□","■","■","□","□","■","■","□","■","■","■","■","■","■","□","■","■","■","■","■","■","□","▤"},
+
+        {"▤","□","■","■","■","■","■","■","□","■","■","■","■","■","■","□","■","■","□","□","■","■","□","■","■","■","■","■","■","□","■","■","■","■","■","■","□","▤"},
+
+        {"▤","□","■","■","□","□","□","□","□","■","■","■","■","■","■","□","■","■","□","□","■","■","□","□","□","□","□","■","■","□","■","■","□","□","□","□","□","▤"},
+
+        {"▤","□","■","■","□","□","□","□","□","■","■","□","□","■","■","□","■","■","□","□","■","■","□","□","□","□","□","■","■","□","■","■","□","□","□","□","□","▤"},
+
+        {"▤","□","■","■","□","□","□","□","□","■","■","□","□","■","■","□","■","■","■","■","■","■","□","■","■","■","■","■","■","□","■","■","■","■","■","■","□","▤"},
+
+        {"▤","□","■","■","□","□","□","□","□","■","■","□","□","■","■","□","■","■","■","■","■","■","□","■","■","■","■","■","■","□","■","■","■","■","■","■","□","▤"},
+
+        {"▤","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","▤"},
+
+        {"▤","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","▤"},
+
+        {"▤","□",Text"P.","S.","□",Text"P,"," p","키"," 를","□",Text"누","를","□",Text"시","□",Text"3 ","초","□",Text"뒤","□",Text"다","시","□",Text"시","작","합","니","다",".","□","□","□","□","□","□","□","□","▤"},
+
+        {"▤","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","▤"},
+
+        {"▤","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","▤"},
+
+        {"▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤"}
+    };
+
+    string ThreeImage[18][38] = {
+        {"  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","▤","▤","▤","▤","▤","▤","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  "},
+
+        {"  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","▤","▣","▣","▣","▣","▣","▣","▤","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  "},
+
+        {"  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","▤","▣","▣","▣","▣","▣","▣","▣","▣","▤","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  "},
+
+        {"  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","▤","▣","▣","▣","▤","▤","▤","▤","▣","▣","▣","▤","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  "},
+
+        {"  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","▤","▣","▣","▤","  ","  ","  ","  ","▤","▣","▣","▤","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  "},
+
+        {"  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","▤","▤","  ","  ","  ","  ","  ","▤","▣","▣","▤","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  "},
+
+        {"  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","▤","▣","▣","▤","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  "},
+
+        {"  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","▤","▤","▤","▤","▣","▣","▣","▤","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  "},
+
+        {"  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","▤","▣","▣","▣","▣","▣","▣","▤","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  "},
+
+        {"  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","▤","▣","▣","▣","▣","▣","▣","▤","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  "},
+
+        {"  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","▤","▤","▤","▤","▣","▣","▣","▤","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  "},
+
+        {"  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","▤","▣","▣","▤","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  "},
+
+        {"  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","▤","▤","  ","  ","  ","  ","  ","▤","▣","▣","▤","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  "},
+
+        {"  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","▤","▣","▣","▤","  ","  ","  ","  ","▤","▣","▣","▤","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  "},
+
+        {"  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","▤","▣","▣","▣","▤","▤","▤","▤","▣","▣","▣","▤","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  "},
+
+        {"  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","▤","▣","▣","▣","▣","▣","▣","▣","▣","▤","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  "},
+
+        {"  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","▤","▣","▣","▣","▣","▣","▣","▤","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  "},
+
+        {"  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","▤","▤","▤","▤","▤","▤","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  "},
+    };
+
+    string TwoImage[18][38] = {
+         {"  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","▤","▤","▤","▤","▤","▤","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  "},
+
+        {"  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","▤","▧","▧","▧","▧","▧","▧","▤","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  "},
+
+        {"  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","▤","▧","▧","▧","▧","▧","▧","▧","▧","▤","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  "},
+
+        {"  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","▤","▧","▧","▧","▤","▤","▤","▤","▧","▧","▧","▤","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  "},
+
+        {"  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","▤","▧","▧","▤","  ","  ","  ","  ","▤","▧","▧","▤","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  "},
+
+        {"  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","▤","▤","  ","  ","  ","  ","  ","▤","▧","▧","▤","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  "},
+
+        {"  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","▤","▧","▧","▤","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  "},
+
+        {"  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","▤","▧","▧","▤","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  "},
+
+        {"  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","▤","▧","▧","▧","▤","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  "},
+
+        {"  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","▤","▧","▧","▧","▤","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  "},
+
+        {"  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","▤","▧","▧","▧","▤","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  "},
+
+        {"  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","▤","▧","▧","▧","▤","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  "},
+
+        {"  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","▤","▧","▧","▧","▤","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  "},
+
+        {"  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","▤","▧","▧","▧","▤","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  "},
+
+        {"  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","▤","▧","▧","▧","▤","▤","▤","▤","▤","▤","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  "},
+
+        {"  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","▤","▧","▧","▧","▧","▧","▧","▧","▧","▧","▧","▤","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  "},
+
+        {"  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","▤","▧","▧","▧","▧","▧","▧","▧","▧","▧","▧","▤","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  "},
+
+        {"  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  "},
+    };
+
+    string OneImage[18][38] = {
+        {"  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","▤","▤","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  "},
+
+        {"  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","▤","▦","▦","▤","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  "},
+
+        {"  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","▤","▦","▦","▦","▤","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  "},
+
+        {"  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","▤","▦","▦","▦","▦","▤","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  "},
+
+        {"  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","▤","▦","▦","▦","▦","▦","▤","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  "},
+
+        {"  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","▤","▦","▦","▦","▤","▦","▦","▤","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  "},
+
+        {"  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","▤","▦","▦","▤","▤","▦","▦","▤","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  "},
+
+        {"  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","▤","▤","  ","▤","▦","▦","▤","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  "},
+
+        {"  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","▤","▦","▦","▤","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  "},
+
+        {"  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","▤","▦","▦","▤","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  "},
+
+        {"  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","▤","▦","▦","▤","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  "},
+
+        {"  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","▤","▦","▦","▤","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  "},
+
+        {"  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","▤","▦","▦","▤","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  "},
+
+        {"  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","▤","▦","▦","▤","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  "},
+
+        {"  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","▤","▤","▤","▤","▦","▦","▤","▤","▤","▤","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  "},
+
+        {"  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","▤","▦","▦","▦","▦","▦","▦","▦","▦","▦","▦","▤","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  "},
+
+        {"  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","▤","▦","▦","▦","▦","▦","▦","▦","▦","▦","▦","▤","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  "},
+
+        {"  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  "},
+    };
+
+    PauseUi(int x, int y, int width, int height) : Object(width, height) {
+        X = x;
+        Y = y;
+        Active = false;
+        Width = width;
+        Height = height;
+        SetDefaultImage(0);
+        ImagePaste();
+    }
+
+    void ResetPos() {
+        X = DefaultX;
+        Y = DefaultY;
+        Active = false;
+    }
+
+    void PauseGame(Scene& s) {
+        for (int i = 3; i > 0; i--) {
+            gotoxy(0, 0);
+            s.ClearScreenBuf();
+            SetDefaultImage(i);
+            ImagePaste();
+            s.Draw();
+            Sleep(1000);
+        }
+        setActive(false);
+        SetDefaultImage(0);
+        ImagePaste();
+    }
+
+    void setActive(bool b) {
+        Active = b;
+    }
+
+    void SetDefaultImage(int number) {
+        for (int i = 0; i < 18; i++) {
+            for (int j = 0; j < 38; j++) {
+                if (number == 3) {
+                    DefaultImage[i][j] = ThreeImage[i][j];
+                } else if (number == 2) {
+                    DefaultImage[i][j] = TwoImage[i][j];
+                } else if (number == 1) {
+                    DefaultImage[i][j] = OneImage[i][j];
+                } else if (number == 0) {
+                    DefaultImage[i][j] = PauseImage[i][j];
+                }
+            }
+        }
+    }
+
+    void ImagePaste() {
+        for (int i = 0; i < 18; i++) {
+            for (int j = 0; j < 38; j++) {
+                if (DefaultImage[i][j] == "■"){
+                    DefaultImage[i][j] = Gray"■";
+                } else if (DefaultImage[i][j] == "▤") {
+                    DefaultImage[i][j] = Black"▤" Reset;
+                } else if (DefaultImage[i][j] == "□") {
+                    DefaultImage[i][j] = White"□";
+                } else if (DefaultImage[i][j] == "▣") {
+                    DefaultImage[i][j] = Green"▣";
+                } else if (DefaultImage[i][j] == "▧") {
+                    DefaultImage[i][j] = Yellow"▧";
+                } else if (DefaultImage[i][j] == "▦") {
+                    DefaultImage[i][j] = Red"▦";
+                }
+                Image[i][j] = DefaultImage[i][j];
+            }
+        }
+    }
+
+    void Render(Scene& s) {
+        for (int i = 0; i < Height; i++) {
+            if ((Y + i) < 39) {
+                for (int j = 0; j < Width; j++) {
+                    if (0 <= (X + j) && (X + j) < 100) {
+                        if (Image[i][j] != "  ") {
+                            s.ScreenBuffer[Y + i][X + j] = Image[i][j];
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+};
+
 class StartUI : public Object
 {
 public:
 
-
-    string defaultimage[30][80] = {
+    string DefaultImage[30][80] = {
         {"□","□","□","□","□","□","  ","□","□","  ","  ","  ","  ","  ","□","□","□","□","□","□","  ","□","□","  ","  ","  ","□","□","  ","□","□","□","□","□","□","  ","  ","□","□","□","□","□","□","  ","□","□","  ","  ","□","□","  ","□","□","  ","  ","  ","□","□","  ","□","□","  ","  ","  ","□","□","  ","□","□","□","□","□","□","  ","□","□","□","□","□","□"},
 
         {"□","■","■","■","■","■","  ","□","■","  ","  ","  ","  ","  ","□","■","■","■","■","■","  ","□","■","□","  ","□","■","■","  ","□","■","■","■","■","■","  ","  ","□","■","■","■","■","■","  ","□","■","  ","  ","□","■","  ","□","■","■","  ","  ","□","■","  ","□","■","■","  ","  ","□","■","  ","□","■","■","■","■","■","  ","□","■","■","■","■","■"},
@@ -561,33 +812,26 @@ public:
     void ImagePaste() {
         for (int i = 0; i < 30; i++) {
             for (int j = 0; j < 80; j++) {
-                if (defaultimage[i][j] == "■")
-                {
+                if (DefaultImage[i][j] == "■") {
+                    if (j == 79) {
+                        DefaultImage[i][j] = Lmint"■" Reset;
+                    } else {
+                        DefaultImage[i][j] = Lmint"■";
+                    }
+                } else if (DefaultImage[i][j] == "▤") {
+                    DefaultImage[i][j] = Lgray"▤";
+                } else if (DefaultImage[i][j] == "□") {
                     if (j == 79)
                     {
-                        defaultimage[i][j] = Lmint"■" Reset;
-                    }
-                    else {
-                        defaultimage[i][j] = Lmint"■";
-                    }
-                }
-                else if (defaultimage[i][j] == "▤") {
-                    defaultimage[i][j] = Lgray"▤";
-                }
-                else if (defaultimage[i][j] == "□") {
-                    if (j == 79)
-                    {
-                        defaultimage[i][j] = White"□" Reset;
-                    }
-                    else {
-                        defaultimage[i][j] = White"□";
+                        DefaultImage[i][j] = White"□" Reset;
+                    } else {
+                        DefaultImage[i][j] = White"□";
                     }
                 }
-                if (j < 79 && defaultimage[i][j + 1] == "  " && defaultimage[i][j] != "  ")
-                {
-                    defaultimage[i][j] += Reset;
+                if (j < 79 && DefaultImage[i][j + 1] == "  " && DefaultImage[i][j] != "  ") {
+                    DefaultImage[i][j] += Reset;
                 }
-                image[i][j] = defaultimage[i][j];
+                Image[i][j] = DefaultImage[i][j];
             }
         }
     }
@@ -601,8 +845,8 @@ public:
             if ((Y + i) < 39) {
                 for (int j = 0; j < Width; j++) {
                     if (0 <= (X + j) && (X + j) < 100) {
-                        if (image[i][j] != "  ") {
-                            s.ScreenBuffer[Y + i][X + j] = image[i][j];
+                        if (Image[i][j] != "  ") {
+                            s.ScreenBuffer[Y + i][X + j] = Image[i][j];
                         }
                     }
                 }
@@ -665,47 +909,34 @@ public:
 
     void ImagePaste() {
 
-        if (LeftRight == true)
-        {
+        if (LeftRight == true) {
             for (int i = 0; i < 7; i++) {
                 for (int j = 0; j < 7; j++) {
-                    if (LeftArrow[i][j] == "□")
-                    {
-                        if (j == 6)
-                        {
+                    if (LeftArrow[i][j] == "□") {
+                        if (j == 6) {
                             LeftArrow[i][j] = White"□" Reset;
-                        }
-                        else {
+                        } else {
                             LeftArrow[i][j] = White"□";
                         }
-                    }
-                    if (j < 6 && LeftArrow[i][j + 1] == "  " && LeftArrow[i][j] != "  ")
-                    {
+                    } if (j < 6 && LeftArrow[i][j + 1] == "  " && LeftArrow[i][j] != "  ") {
                         LeftArrow[i][j] += Reset;
                     }
-                    image[i][j] = LeftArrow[i][j];
+                    Image[i][j] = LeftArrow[i][j];
                 }
             }
-        }
-        else if (LeftRight == false)
-        {
+        } else if (LeftRight == false) {
             for (int i = 0; i < 7; i++) {
                 for (int j = 0; j < 7; j++) {
-                    if (RightArrow[i][j] == "□")
-                    {
-                        if (j == 6)
-                        {
+                    if (RightArrow[i][j] == "□") {
+                        if (j == 6) {
                             RightArrow[i][j] = White"□" Reset;
-                        }
-                        else {
+                        } else {
                             RightArrow[i][j] = White"□";
                         }
-                    }
-                    if (j < 6 && RightArrow[i][j + 1] == "  " && RightArrow[i][j] != "  ")
-                    {
+                    } if (j < 6 && RightArrow[i][j + 1] == "  " && RightArrow[i][j] != "  ") {
                         RightArrow[i][j] += Reset;
                     }
-                    image[i][j] = RightArrow[i][j];
+                    Image[i][j] = RightArrow[i][j];
                 }
             }
         }
@@ -720,8 +951,8 @@ public:
             if ((Y + i) < 39) {
                 for (int j = 0; j < Width; j++) {
                     if (0 <= (X + j) && (X + j) < 100) {
-                        if (image[i][j] != "  ") {
-                            s.ScreenBuffer[Y + i][X + j] = image[i][j];
+                        if (Image[i][j] != "  ") {
+                            s.ScreenBuffer[Y + i][X + j] = Image[i][j];
                         }
                     }
                 }
@@ -743,7 +974,7 @@ public:
         ImagePaste();
     }
 
-    string defaultimage[30][40] = {
+    string DefaultImage[30][40] = {
         {"■","■","■","■","■","■","■","■","■","■","■","■","■","■","■","■","■","■","■","■","■","■","■","■","■","■","■","■","■","■","■","■","■","■","■","■","■","■","■","■"},
 
         {"■","■","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","■","■"},
@@ -751,55 +982,55 @@ public:
         {"■","▤","▣","▣","▣","▣","▣","▣","▣","▣","▣","▣","▣","▣","▣","▣","▣","▣","▣","▣","▣","▣","▣","▣","▣","▣","▣","▣","▣","▣","▣","▣","▣","▣","▣","▣","▣","▣","▤","■"},
 
         {"■","▤","▣","□","□","□","□","□","□","▣","□","□","▣","▣","□","□","▣","□","□","▣","▣","▣","▣","▣","□","□","□","□","□","□","▣","□","□","□","□","□","□","▣","▤","■"},
-        
+
         {"■","▤","▣","□","□","□","□","□","□","▣","□","□","▣","▣","□","□","▣","□","□","▣","▣","▣","▣","▣","□","□","□","□","□","□","▣","□","□","□","□","□","□","▣","▤","■"},
-        
+
         {"■","▤","▣","□","□","▣","▣","□","□","▣","□","□","▣","▣","□","□","▣","□","□","▣","▣","▣","▣","▣","□","□","▣","▣","▣","▣","▣","□","□","▣","▣","▣","▣","▣","▤","■"},
-           
+
         {"■","▤","▣","□","□","▣","▣","□","□","▣","□","□","▣","▣","□","□","▣","□","□","▣","▣","▣","▣","▣","□","□","▣","▣","▣","▣","▣","□","□","▣","▣","▣","▣","▣","▤","■"},
-        
+
         {"■","▤","▣","□","□","□","□","□","□","▣","□","□","▣","▣","□","□","▣","□","□","▣","▣","▣","▣","▣","□","□","□","□","□","□","▣","□","□","□","□","□","□","▣","▤","■"},
-        
+
         {"■","▤","▣","□","□","□","□","□","□","▣","□","□","▣","▣","□","□","▣","□","□","▣","▣","▣","▣","▣","□","□","□","□","□","□","▣","□","□","□","□","□","□","▣","▤","■"},
-        
+
         {"■","▤","▣","□","□","▣","□","□","▣","▣","□","□","▣","▣","□","□","▣","□","□","▣","▣","▣","▣","▣","□","□","▣","▣","▣","▣","▣","▣","▣","▣","▣","□","□","▣","▤","■"},
-        
+
         {"■","▤","▣","□","□","▣","□","□","▣","▣","□","□","▣","▣","□","□","▣","□","□","▣","▣","▣","▣","▣","□","□","▣","▣","▣","▣","▣","▣","▣","▣","▣","□","□","▣","▤","■"},
-        
+
         {"■","▤","▣","□","□","▣","▣","□","□","▣","□","□","□","□","□","□","▣","□","□","□","□","□","□","▣","□","□","□","□","□","□","▣","□","□","□","□","□","□","▣","▤","■"},
-        
+
         {"■","▤","▣","□","□","▣","▣","□","□","▣","□","□","□","□","□","□","▣","□","□","□","□","□","□","▣","□","□","□","□","□","□","▣","□","□","□","□","□","□","▣","▤","■"},
-        
+
         {"■","▤","▣","▣","▣","▣","▣","▣","▣","▣","▣","▣","▣","▣","▣","▣","▣","▣","▣","▣","▣","▣","▣","▣","▣","▣","▣","▣","▣","▣","▣","▣","▣","▣","▣","▣","▣","▣","▤","■"},
-        
+
         {"■","▤","▣","▣","▣","▣","▣","▣","▣","▣","▣","▣","▣","▣","▣","▣","▣","▣","▣","▣","▣","▣","▣","▣","▣","▣","▣","▣","▣","▣","▣","▣","▣","▣","▣","▣","▣","▣","▤","■"},
-        
+
         {"■","▤","▣",Text"1.","▣",Text"스","페","이","스","바","를","▣",Text"누","를","▣",Text"시","▣",Text"점","프","합","니","다",". ","▣","▣","▣","▣","▣","▣","▣","▣","▣","▣","▣","▣","▣","▣","▣","▤","■"},
-        
+
         {"■","▤","▣","▣","▣","▣","▣","▣","▣","▣","▣","▣","▣","▣","▣","▣","▣","▣","▣","▣","▣","▣","▣","▣","▣","▣","▣","▣","▣","▣","▣","▣","▣","▣","▣","▣","▣","▣","▤","■"},
-        
+
         {"■","▤","▣",Text"2.","▣",Text"P,"," p","를","▣",Text"누","를","▣",Text"시","▣",Text"일","시","▣",Text"정","지","되","며","▣",Text"다","시","▣",Text"누","를","▣",Text"시","▣","▣","▣","▣","▣","▣","▣","▣","▣","▤","■"},
-        
+
         {"■","▤","▣","▣","▣",Text"3 ","초","▣",Text"뒤","▣",Text"다","시","▣",Text"시","작","합","니","다",". ","▣","▣","▣","▣","▣","▣","▣","▣","▣","▣","▣","▣","▣","▣","▣","▣","▣","▣","▣","▤","■"},
-        
+
         {"■","▤","▣","▣","▣","▣","▣","▣","▣","▣","▣","▣","▣","▣","▣","▣","▣","▣","▣","▣","▣","▣","▣","▣","▣","▣","▣","▣","▣","▣","▣","▣","▣","▣","▣","▣","▣","▣","▤","■"},
-        
+
         {"■","▤","▣",Text"3.","▣",Text"장","애","물","에","▣",Text"맞","으","면","▣",Text"죽","습","니","다",". ","▣","▣","▣","▣","▣","▣","▣","▣","▣","▣","▣","▣","▣","▣","▣","▣","▣","▣","▣","▤","■"},
-        
+
         {"■","▤","▣","▣","▣","▣","▣","▣","▣","▣","▣","▣","▣","▣","▣","▣","▣","▣","▣","▣","▣","▣","▣","▣","▣","▣","▣","▣","▣","▣","▣","▣","▣","▣","▣","▣","▣","▣","▤","■"},
 
         {"■","▤","▣",Text"4.","▣",Text"점","수","가","▣",Text"올","라","갈","수","록","▣",Text"속","도","가","▣",Text"빨","라","집","니","다",". ","▣","▣","▣","▣","▣","▣","▣","▣","▣","▣","▣","▣","▣","▤","■"},
 
         {"■","▤","▣","▣","▣","▣","▣","▣","▣","▣","▣","▣","▣","▣","▣","▣","▣","▣","▣","▣","▣","▣","▣","▣","▣","▣","▣","▣","▣","▣","▣","▣","▣","▣","▣","▣","▣","▣","▤","■"},
-        
+
         {"■","▤","▣",Text"P.","S.","▣",Text"이","▣",Text"창","은","▣",Text"엔","터","키","를","▣",Text"누","르","면","▣",Text"닫","힙","니","다",". ","▣","▣","▣","▣","▣","▣","▣","▣","▣","▣","▣","▣","▣","▤","■"},
 
         {"■","▤","▣","▣","▣","▣","▣","▣","▣","▣","▣","▣","▣","▣","▣","▣","▣","▣","▣","▣","▣","▣","▣","▣","▣","▣","▣","▣","▣","▣","▣","▣","▣","▣","▣","▣","▣","▣","▤","■"},
-        
+
         {"■","▤","▣","▣","▣","▣","▣","▣","▣","▣","▣","▣","▣","▣","▣","▣","▣","▣","▣","▣","▣","▣","▣","▣","▣","▣","▣","▣","▣","▣","▣","▣","▣","▣","▣","▣","▣","▣","▤","■"},
-        
+
         {"■","▤","▣","▣","▣","▣","▣","▣","▣","▣","▣","▣","▣","▣","▣","▣","▣","▣","▣","▣","▣","▣","▣","▣","▣","▣","▣","▣","▣","▣","▣","▣","▣","▣","▣","▣","▣","▣","▤","■"},
-        
+
         {"■","■","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","■","■"},
 
         {"■","■","■","■","■","■","■","■","■","■","■","■","■","■","■","■","■","■","■","■","■","■","■","■","■","■","■","■","■","■","■","■","■","■","■","■","■","■","■","■"}
@@ -808,30 +1039,22 @@ public:
     void ImagePaste() {
         for (int i = 0; i < 30; i++) {
             for (int j = 0; j < 40; j++) {
-                if (defaultimage[i][j] == "■")
-                {
-                    if (j == 39)
-                    {
-                        defaultimage[i][j] = Gray"■" Reset;
+                if (DefaultImage[i][j] == "■") {
+                    if (j == 39) {
+                        DefaultImage[i][j] = Gray"■" Reset;
+                    } else {
+                        DefaultImage[i][j] = Gray"■";
                     }
-                    else {
-                        defaultimage[i][j] = Gray"■";
-                    }
+                } else if (DefaultImage[i][j] == "▤") {
+                    DefaultImage[i][j] = Lgray"▤";
+                } else if (DefaultImage[i][j] == "▣") {
+                    DefaultImage[i][j] = White"▣"; 
+                } else if (DefaultImage[i][j] == "□") {
+                    DefaultImage[i][j] = Black"□";
+                } if (j < 39 && DefaultImage[i][j + 1] == "  " && DefaultImage[i][j] != "  ") {
+                    DefaultImage[i][j] += Reset;
                 }
-                else if (defaultimage[i][j] == "▤") {
-                    defaultimage[i][j] = Lgray"▤";
-                }
-                else if (defaultimage[i][j] == "▣") {
-                    defaultimage[i][j] = White"▣";
-                }
-                else if (defaultimage[i][j] == "□") {
-                    defaultimage[i][j] = Black"□";
-                }
-                if (j < 39 && defaultimage[i][j + 1] == "  " && defaultimage[i][j] != "  ")
-                {
-                    defaultimage[i][j] += Reset;
-                }
-                image[i][j] = defaultimage[i][j];
+                Image[i][j] = DefaultImage[i][j];
             }
         }
     }
@@ -845,8 +1068,8 @@ public:
             if ((Y + i) < 39) {
                 for (int j = 0; j < Width; j++) {
                     if (0 <= (X + j) && (X + j) < 100) {
-                        if (image[i][j] != "  ") {
-                            s.ScreenBuffer[Y + i][X + j] = image[i][j];
+                        if (Image[i][j] != "  ") {
+                            s.ScreenBuffer[Y + i][X + j] = Image[i][j];
                         }
                     }
                 }
@@ -854,6 +1077,214 @@ public:
         }
     }
 
+};
+
+class Ranks : public Object
+{
+public:
+
+    Ranks(int x, int y, int width, int height) : Object(width, height)
+    {
+        X = x;
+        Y = y;
+        Active = false;
+        Width = width;
+        Height = height;
+        ImagePaste();
+    }
+
+
+    string LeaderBoard[10][4] = {
+        // 순위 이름 점수 스테이지
+        {"","","",""},
+        {"","","",""},
+        {"","","",""},
+        {"","","",""},
+        {"","","",""},
+        {"","","",""},
+        {"","","",""},
+        {"","","",""},
+        {"","","",""},
+        {"","","",""}
+    };
+
+    string DefaultImage[30][40] = {
+        {"■","■","■","■","■","■","■","■","■","■","■","■","■","■","■","■","■","■","■","■","■","■","■","■","■","■","■","■","■","■","■","■","■","■","■","■","■","■","■","■"},
+
+        {"■","■","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","■","■"},
+
+        {"■","▤","▣","▣","▣","▣","▣","▣","▣","▣","▣","▣","▣","▣","▣","▣","▣","▣","▣","▣","▣","▣","▣","▣","▣","▣","▣","▣","▣","▣","▣","▣","▣","▣","▣","▣","▣","▣","▤","■"},
+
+        {"■","▤","▣","□","□","□","□","□","□","▣","▣","▣","□","□","▣","▣","▣","□","□","▣","▣","□","□","▣","□","□","▣","▣","□","□","▣","□","□","□","□","□","□","▣","▤","■"},
+
+        {"■","▤","▣","□","□","□","□","□","□","▣","▣","□","□","□","□","▣","▣","□","□","□","▣","□","□","▣","□","□","▣","▣","□","□","▣","□","□","□","□","□","□","▣","▤","■"},
+
+        {"■","▤","▣","□","□","▣","▣","□","□","▣","□","□","□","□","□","□","▣","□","□","□","▣","□","□","▣","□","□","▣","□","□","▣","▣","□","□","▣","▣","▣","▣","▣","▤","■"},
+
+        {"■","▤","▣","□","□","▣","▣","□","□","▣","□","□","▣","▣","□","□","▣","□","□","□","▣","□","□","▣","□","□","▣","□","□","▣","▣","□","□","▣","▣","▣","▣","▣","▤","■"},
+
+        {"■","▤","▣","□","□","□","□","□","□","▣","□","□","▣","▣","□","□","▣","□","□","□","□","□","□","▣","□","□","□","□","▣","▣","▣","□","□","□","□","□","□","▣","▤","■"},
+
+        {"■","▤","▣","□","□","□","□","□","□","▣","□","□","□","□","□","□","▣","□","□","□","□","□","□","▣","□","□","□","□","▣","▣","▣","□","□","□","□","□","□","▣","▤","■"},
+
+        {"■","▤","▣","□","□","▣","□","□","▣","▣","□","□","□","□","□","□","▣","□","□","▣","□","□","□","▣","□","□","▣","□","□","▣","▣","▣","▣","▣","▣","□","□","▣","▤","■"},
+
+        {"■","▤","▣","□","□","▣","□","□","▣","▣","□","□","▣","▣","□","□","▣","□","□","▣","□","□","□","▣","□","□","▣","□","□","▣","▣","▣","▣","▣","▣","□","□","▣","▤","■"},
+
+        {"■","▤","▣","□","□","▣","▣","□","□","▣","□","□","▣","▣","□","□","▣","□","□","▣","□","□","□","▣","□","□","▣","▣","□","□","▣","□","□","□","□","□","□","▣","▤","■"},
+
+        {"■","▤","▣","□","□","▣","▣","□","□","▣","□","□","▣","▣","□","□","▣","□","□","▣","▣","□","□","▣","□","□","▣","▣","□","□","▣","□","□","□","□","□","□","▣","▤","■"},
+
+        {"■","▤","▣","▣","▣","▣","▣","▣","▣","▣","▣","▣","▣","▣","▣","▣","▣","▣","▣","▣","▣","▣","▣","▣","▣","▣","▣","▣","▣","▣","▣","▣","▣","▣","▣","▣","▣","▣","▤","■"},
+
+        {"■","▤","▣","▣","▣","▣","▣","▣","▣","▣","▣","▣","▣","▣","▣","▣","▣","▣","▣","▣","▣","▣","▣","▣","▣","▣","▣","▣","▣","▣","▣","▣","▣","▣","▣","▣","▣","▣","▤","■"},
+
+        {"■","▤","▣","▣","▣","▣","▣","▣","▣","▣","▣","▣","▣","▣","▣","▣","▣","▣","▣","▣","▣","▣","▣","▣","▣","▣","▣","▣","▣","▣","▣","▣","▣","▣","▣","▣","▣","▣","▤","■"},
+
+        {"■","▤","▣","                                                                    ","▣","▤","■"},
+
+        {"■","▤","▣","                                                                    ","▣","▤","■"},
+
+        {"■","▤","▣","                                                                    ","▣","▤","■"},
+
+        {"■","▤","▣","                                                                    ","▣","▤","■"},
+
+        {"■","▤","▣","                                                                    ","▣","▤","■"},
+
+        {"■","▤","▣","                                                                    ","▣","▤","■"},
+
+        {"■","▤","▣","                                                                    ","▣","▤","■"},
+
+        {"■","▤","▣","                                                                    ","▣","▤","■"},
+
+        {"■","▤","▣","                                                                    ","▣","▤","■"},
+
+        {"■","▤","▣","                                                                    ","▣","▤","■"},
+
+        {"■","▤","▣","▣","▣","▣","▣","▣","▣","▣","▣","▣","▣","▣","▣","▣","▣","▣","▣","▣","▣","▣","▣","▣","▣","▣","▣","▣","▣","▣","▣","▣","▣","▣","▣","▣","▣","▣","▤","■"},
+
+        {"■","▤","▣",Text"P.","S.","▣",Text"이","▣",Text"창","은","▣",Text"엔","터","키","를","▣",Text"누","르","면","▣",Text"닫","힙","니","다",". ","▣","▣","▣","▣","▣","▣","▣","▣","▣","▣","▣","▣","▣","▤","■"},
+
+        {"■","■","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","■","■"},
+
+        {"■","■","■","■","■","■","■","■","■","■","■","■","■","■","■","■","■","■","■","■","■","■","■","■","■","■","■","■","■","■","■","■","■","■","■","■","■","■","■","■"}
+    };
+
+    void ImagePaste() {
+        for (int i = 0; i < 30; i++) {
+            for (int j = 0; j < 40; j++) {
+                if (DefaultImage[i][j] == "■")
+                {
+                    DefaultImage[i][j] = Gray"■" Reset;
+                }
+                else if (DefaultImage[i][j] == "▤") {
+                    DefaultImage[i][j] = Lgray"▤";
+                }
+                else if (DefaultImage[i][j] == "▣") {
+                    DefaultImage[i][j] = White"▣";
+                }
+                else if (DefaultImage[i][j] == "□") {
+                    DefaultImage[i][j] = Black"□";
+                }
+                Image[i][j] = DefaultImage[i][j];
+            }
+        }
+    }
+
+    void setActive(bool b) {
+        Active = b;
+    }
+
+    void Render(Scene& s) {
+        for (int i = 0; i < Height; i++) {
+            if ((Y + i) < 39) {
+                for (int j = 0; j < Width; j++) {
+                    if (0 <= (X + j) && (X + j) < 100) {
+                        if (Image[i][j] != "  ") {
+                            s.ScreenBuffer[Y + i][X + j] = Image[i][j];
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    void readDataFromFile(const string& filename) {
+        ifstream inputFile(filename);
+        if (!inputFile.is_open()) {
+            cout << "파일 열기 실패" << endl;
+            return;
+        }
+
+        string line;
+        int row = 0;
+        while (getline(inputFile, line)) {
+            istringstream iss(line);
+            string token;
+            int col = 0;
+            while (getline(iss, token, ',')) {
+                LeaderBoard[row][col] = token;
+                col++;
+            }
+            row++;
+        }
+        inputFile.close();
+    }
+
+    void writeDataToFile(const string& filename) {
+        ofstream outputFile(filename);
+        if (!outputFile.is_open()) {
+            cout << "파일 열기 실패" << endl;
+            return;
+        }
+
+        for (int i = 0; i < 10; i++) {
+            for (int j = 0; j < 4; j++) {
+                outputFile << LeaderBoard[i][j];
+                if (j != 9) {
+                    outputFile << ",";
+                }
+            }
+            outputFile << endl;
+        }
+        outputFile.close();
+    }
+
+    void writeLeaderBoard(string name, int score, int stageNumber) {
+        for (int i = 0; i < 10; i++) {
+            if (LeaderBoard[i][2] == "" || score > stoi(LeaderBoard[i][2])) {
+                for (int j = 9; j > i; j--) {
+                    LeaderBoard[j][1] = LeaderBoard[j - 1][1];
+                    LeaderBoard[j][2] = LeaderBoard[j - 1][2];
+                    LeaderBoard[j][3] = LeaderBoard[j - 1][3];
+                }
+                LeaderBoard[i][1] = name;
+                LeaderBoard[i][2] = to_string(score);
+                LeaderBoard[i][3] = to_string(stageNumber);
+                break;
+            }
+        }
+        for (int i = 0; i < 10; i++) {
+            if (i < 9){
+                LeaderBoard[i][0] = to_string(i + 1) + ".  ";
+            } else if (i == 9) {
+                LeaderBoard[i][0] = to_string(i + 1) + ". ";
+            }
+        }
+    }
+
+    void loadingLeaderBoard()
+    {
+        string rankline ="";
+        DefaultImage[16][3];
+        for (int i = 0; i < 10; i++) {
+            rankline = "순위 :  " + LeaderBoard[i][0] + "  이름 :  " + LeaderBoard[i][1] + "  점수 :  " + LeaderBoard[i][2] + "  스테이지  번호 :  " + LeaderBoard[i][3];
+            DefaultImage[16 + i][3].erase(0, rankline.size());
+            DefaultImage[16 + i][3].insert(0, rankline);
+            DefaultImage[16 + i][2] += Text;
+        }
+        ImagePaste();
+    }
 };
 
 class Player : public Object
@@ -864,12 +1295,12 @@ public:
     bool IsJump;
     bool IsFalling;
     int JumpCount;
-    int ObjectYDefault;
+    int defaultY;
 
     Player(int x, int y, int width, int height) : Object(width, height) {
         X = x;
         Y = y;
-        ObjectYDefault = y;
+        defaultY = y;
         Active = true;
         MoveCount = 0;
         JumpCount = 0;
@@ -880,17 +1311,26 @@ public:
         ImagePaste();
     }
 
-    string defaultimage[10][10] = {
-        {"  ","  ","  ","  ",Lmint"■" Reset,"  ","  ","  ","  ","  "},
-        {"  ","  ","  ",Lmint"■",Lmint"■" Reset,"  ","  ","  ","  ","  "},
-        {"  ","  ",Lmint"■",Lmint"■",Lmint"■",Lmint"■" Reset,"  ","  ","  ","  "},
-        {"  ",White"■",White"■",Lmint"■",Lmint"■",Lmint"■",Mint"■",Mint"■" Reset,"  ","  "},
-        {Lmint"■",White"■",White"■",Lmint"■",Lmint"■",Lmint"■",Lmint"■",Mint"■",Mint"■" Reset,"  "},
-        {Lmint"■",Lmint"■",Lmint"■",TextWhite BgBlack"▣",Lmint"■",Lmint"■",Lmint"■",TextWhite BgBlack"▣",Mint"■",Lblue"■" Reset},
-        {Lmint"■",White"■",Lmint"■",Lmint"■",Lmint"■",TextBlack BgLmint"▲",Lmint"■",Lmint"■",Mint"■",Lblue"■" Reset},
-        {Lmint"■",Lmint"■",Lmint"■",Lmint"■",Lmint"■",Lmint"■",Lmint"■",Mint"■",Lblue"■",White"■" Reset},
-        {"  ",Lmint"■",Lmint"■",Lmint"■",Mint"■",Mint"■",Mint"■",Lblue"■",White"■" Reset,"  "},
-        {"  ","  ",Mint"■",Mint"■",Lblue"■",Lblue"■",Lblue"■" Reset,"  ","  ","  "}
+    string DefaultImage[10][10] = {
+        {"  ","  ","  ","  ","■","  ","  ","  ","  ","  "},
+
+        {"  ","  ","  ","■","■","■","  ","  ","  ","  "},
+
+        {"  ","  ","■","■","■","■","□","  ","  ","  "},
+
+        {"  ","▤","▤","■","■","■","□","□","  ","  "},
+
+        {"■","▤","▤","■","■","■","■","■","□","  "},
+
+        {"■","■","■","▣","■","■","■","▣","□","▧"},
+
+        {"■","■","■","■","■","▲","■","■","□","▧"},
+
+        {"■","■","■","■","■","■","■","□","▧","▤"},
+
+        {"  ","■","■","■","□","□","□","▧","▤" ,"  "},
+
+        {"  ","  ","□","□","▧","▧","▧" ,"  ","  ","  "}
     };
 
     void Render(Scene& s) {
@@ -898,18 +1338,51 @@ public:
         {
             for (int j = 0; j < Width; j++)
             {
-                if (image[i][j] != "  ")
+                if (Image[i][j] != "  ")
                 {
-                    s.ScreenBuffer[Y + i][X + j] = image[i][j];
+                    s.ScreenBuffer[Y + i][X + j] = Image[i][j];
                 }
             }
         }
     }
 
+    void ResetPos()
+    {
+        Active = true;
+        MoveCount = 0;
+        JumpCount = 0;
+        IsFalling = false;
+        IsJump = false;
+    }
+
+
     void ImagePaste() {
         for (int i = 0; i < Height; i++) {
             for (int j = 0; j < Width; j++) {
-                image[i][j] = defaultimage[i][j];
+                Image[i][j] = DefaultImage[i][j];
+            }
+        }
+
+        for (int i = 0; i < Height; i++) {
+            for (int j = 0; j < Width; j++) {
+                if (DefaultImage[i][j] == "■") {
+                    DefaultImage[i][j] = Lmint"■";
+                } else if (DefaultImage[i][j] == "▤") {
+                    DefaultImage[i][j] = White"▤";
+                } else if (DefaultImage[i][j] == "□") {
+                        DefaultImage[i][j] = Mint"□";
+                } else if (DefaultImage[i][j] == "▧") {
+                    DefaultImage[i][j] = Lblue"▧";
+                } else if (DefaultImage[i][j] == "▲" || DefaultImage[i][j] == "▣") {
+                    DefaultImage[i][j] = TextBlack BgLmint + DefaultImage[i][j];
+                }
+                if (j < 79 && DefaultImage[i][j + 1] == "  " && DefaultImage[i][j] != "  ") {
+                    DefaultImage[i][j] += Reset;
+                } 
+                if (j==9) {
+                    DefaultImage[i][j] += Reset;
+                }
+                Image[i][j] = DefaultImage[i][j];
             }
         }
     }
@@ -919,17 +1392,14 @@ public:
             if (MoveCount < 2) {
                 Y++;
                 MoveCount++;
-            }
-            else {
+            } else {
                 Y--;
                 MoveCount++;
-                if (MoveCount >= 4)
-                {
+                if (MoveCount >= 4) {
                     MoveCount = 0;
                 }
             }
-        }
-        else {
+        } else {
             MoveCount = 0;
         }
     }
@@ -939,30 +1409,25 @@ public:
             if (IsFalling == false) {
                 Y--;
                 JumpCount++;
-                if (JumpCount >= 15)
-                {
+                if (JumpCount >= 15) {
                     IsFalling = true;
                 }
-            }
-            else if (IsFalling == true) {
+            } else if (IsFalling == true) {
                 Y++;
                 JumpCount--;
-                if (JumpCount <= 1)
-                {
+                if (JumpCount <= 1) {
                     IsFalling = false;
                     IsJump = false;
-                    Y = ObjectYDefault;
+                    Y = defaultY;
                 }
             }
         }
     }
 
-    void Collider(Sword& sw) { // 교체
-        if (sw.X >= X && sw.X <= X + 10)
-        {
-            if ((Y + 9) >= 27)
-            {
-                exit(0);
+    bool Collider(Sword& sw) { // 교체
+        if (sw.X >= X && sw.X <= X + 10) {
+            if ((Y + 9) >= 27) {
+                return true;
             }
         }
     }
@@ -974,75 +1439,93 @@ int main() {
     cout.tie(NULL);
     system("mode con cols=200 lines=40");
 
-    Utility u;
-    Scene s;
+    Scene GameScene;
     Scene MainScene;
 
-    Player p(5, 23, 10, 10);
+    Player player(5, 23, 10, 10);
+    Cloud cloud_1(30, 5, 15, 7, 1);
+    Cloud cloud_2(70, 8, 15, 7, 2);
+    Cloud cloud_3(10, 10, 15, 7, 3);
+    Ground ground(100, 4);
+    Mountain mountain(20, 13, 46, 22);
+    Sword sword(90, 1, 1, 12, true);
+    PauseUi pauseui(31, 10, 38, 18);
 
-    Cloud c1(30, 5, 15, 8, 1);
-    Cloud c2(70, 8, 15, 8, 2);
-    Cloud c3(10, 10, 15, 8, 3);
-
-    Ground g(100, 4);
-
-    Mountain m(20, 13, 46, 22);
-
-    Sword sw(90, 1, 1, 12, true);
 
     StartUI startui(10, 5, 80, 30);
-    Arrow a(46, 17, 7, 7);
-    Rules r(30, 5, 40, 30);
+    Arrow arrow(46, 17, 7, 7);
+    Rules rules(30, 5, 40, 30);
+    Ranks ranks(30, 5, 40, 30);
+
+    string LeaderBoard = "LeaderBoard.txt";
+    ranks.readDataFromFile(LeaderBoard);
+
+    string stage = "1.txt";
 
     int speed = 1;
     int score = 0;
     bool IsStart = false;
-    bool pause = false;
+    bool Pause = false;
+    bool CloseProgram = false;
+    bool IsCollision;
+    string name = "";
+    int stagenumber = stoi(stage.substr(0, stage.find(".")));
 
-    s.AddObject(m);
-    s.AddObject(c1);
-    s.AddObject(c2);
-    s.AddObject(c3);
-    s.AddObject(sw);
-    s.AddObject(g);
-    s.AddObject(p);
+    GameScene.AddObject(mountain);
+    GameScene.AddObject(cloud_1);
+    GameScene.AddObject(cloud_2);
+    GameScene.AddObject(cloud_3);
+    GameScene.AddObject(sword);
+    GameScene.AddObject(ground);
+    GameScene.AddObject(player);
+    GameScene.AddObject(pauseui);
 
     MainScene.AddObject(startui);
-    MainScene.AddObject(a);
-    MainScene.AddObject(r);
+    MainScene.AddObject(arrow);
+    MainScene.AddObject(rules);
+    MainScene.AddObject(ranks);
 
-    while (true) {
-        if (IsStart == true)
-        {
-            u.gotoxy(0, 0);
+    while (!CloseProgram) {
+        if (IsStart == true) {
+            gotoxy(0, 0);
 
             auto startTime = chrono::high_resolution_clock::now();
 
-            s.ClearScreenBuf();
+            GameScene.ClearScreenBuf();
             if (_kbhit()) {
                 char key = _getch();
                 if (key == ' ') {
-                    p.IsJump = true;
-                }
-                else if (key == 80 || key == 112)
-                {
-                    pause = true;
+                    player.IsJump = true;
+                } else if (key == 80 || key == 112) {
+                    Pause = true;
+                    pauseui.setActive(true);
                 }
             }
 
-            p.JumpPlayer();
-            p.MovePlayer();
-            c1.MoveCloud();
-            c2.MoveCloud();
-            c3.MoveCloud();
-            m.MoveMountain();
-            g.MoveGround();
-            sw.MoveSword();
-            sw.FallingSword();
+            player.JumpPlayer();
+            player.MovePlayer();
+            cloud_1.MoveCloud();
+            cloud_2.MoveCloud();
+            cloud_3.MoveCloud();
+            mountain.MoveMountain();
+            ground.MoveGround();
+            sword.MoveSword();
+            sword.FallingSword();
 
-            s.Draw();
+            GameScene.Draw();
             cout << "점수 : " << score << " , 속도 : " << speed;
-            p.Collider(sw);
+            IsCollision = player.Collider(sword);
+            if (IsCollision) {
+                cout << "이름을 입력하시오 : ";
+                cin >> name;
+                ranks.writeLeaderBoard(name, score, stagenumber);
+                ranks.writeDataToFile(LeaderBoard);
+                GameScene.ResetObject();
+                speed = 1;
+                score = 0;
+                IsStart = false;
+                IsCollision = false;
+            }
 
             auto endTime = chrono::high_resolution_clock::now();
 
@@ -1051,34 +1534,28 @@ int main() {
             double targetFrameTime = 1.0 / 60;
 
             double sleepTime = targetFrameTime - elapsedTime.count();
-            if (sleepTime > 0)
-            {
+            if (sleepTime > 0) {
                 this_thread::sleep_for(chrono::duration<double>(sleepTime));
             }
 
-            if (pause == true)
-            {
-                while (pause)
-                {
+            if (Pause == true) {
+                while (Pause) {
                     if (_kbhit()) {
                         char key = _getch();
-                        if (key == 80 || key == 112)
-                        {
-                            pause = false;
-                            Sleep(3000);
+                        if (key == 80 || key == 112) {
+                            Pause = false;
                         }
                     }
                 }
+                pauseui.PauseGame(GameScene);
             }
 
             score++;
             if (score % 100 == 0) {
                 speed++;
             }
-        }
-        else if (IsStart == false)
-        {
-            u.gotoxy(0, 0);
+        } else if (IsStart == false) {
+            gotoxy(0, 0);
 
             auto startTime = chrono::high_resolution_clock::now();
 
@@ -1086,46 +1563,36 @@ int main() {
 
             if (_kbhit()) {
                 char key = _getch();
-                if (key == 80 && a.UpDown == true) {
-                    a.Y += 10;
-                    a.UpDown = false;
-                }
-                else if (key == 72 && a.UpDown == false)
-                {
-                    a.Y -= 10;
-                    a.UpDown = true;
-                }
-                else if (key == 13 && a.UpDown == false && a.LeftRight == true)
-                {
-                    return 0;
-                }
-                else if (key == 13 && a.UpDown == true && a.LeftRight == true)
-                {
+                if (key == 80 && arrow.UpDown == true) {
+                    arrow.Y += 10;
+                    arrow.UpDown = false;
+                } else if (key == 72 && arrow.UpDown == false) {
+                    arrow.Y -= 10;
+                    arrow.UpDown = true;
+                } else if (key == 13 && arrow.UpDown == false && arrow.LeftRight == true) {
+                    CloseProgram = true;
+                } else if (key == 13 && arrow.UpDown == true && arrow.LeftRight == true) {
+                    GameScene.ResetObject();
                     IsStart = true;
-                }
-                else if (key == 13 && a.LeftRight == false && a.UpDown == false )
-                {
-                    //랭킹보드 active
-                }
-                else if (key == 13 && a.LeftRight == false && a.UpDown == true )
-                {
-                    if (r.Active == false)
-                    {
-                        r.setActive(true);
+                } else if (key == 13 && arrow.LeftRight == false && arrow.UpDown == false) {
+                    if (ranks.Active == false) {
+                        ranks.setActive(true);
+                    } else {
+                        ranks.setActive(false);
                     }
-                    else {
-                        r.setActive(false);
+                    ranks.loadingLeaderBoard();
+                } else if (key == 13 && arrow.LeftRight == false && arrow.UpDown == true) {
+                    if (rules.Active == false) {
+                        rules.setActive(true);
+                    } else {
+                        rules.setActive(false);
                     }
-                }
-                else if (key == 75 && a.LeftRight == false)
-                {
-                    a.LeftRight = true;
-                    a.ImagePaste();
-                }
-                else if (key == 77 && a.LeftRight == true)
-                {
-                    a.LeftRight = false;
-                    a.ImagePaste();
+                } else if (key == 75 && arrow.LeftRight == false) {
+                    arrow.LeftRight = true;
+                    arrow.ImagePaste();
+                } else if (key == 77 && arrow.LeftRight == true) {
+                    arrow.LeftRight = false;
+                    arrow.ImagePaste();
                 }
             }
             MainScene.Draw();
@@ -1137,11 +1604,11 @@ int main() {
             double targetFrameTime = 1.0 / 60;
 
             double sleepTime = targetFrameTime - elapsedTime.count();
-            if (sleepTime > 0)
-            {
+            if (sleepTime > 0) {
                 this_thread::sleep_for(chrono::duration<double>(sleepTime));
             }
         }
     }
     return 0;
 }
+   
