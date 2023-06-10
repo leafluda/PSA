@@ -8,6 +8,7 @@
 #include <thread>
 #include <chrono>
 #include "Colors.hpp"
+#include <fstream>
 
 #define TextBlack "\033[30m"
 #define TextRed "\033[31m"
