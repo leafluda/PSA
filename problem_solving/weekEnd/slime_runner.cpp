@@ -148,15 +148,15 @@ public:
 
         {"  ","  ","■","■","  ","■","■","■","■","  ","  ","▦","■","  ","  "},
 
-        {"  ","■","■","■","■","■","■","■","■","  ","▦","■","■","■","  "},
+        {"  ","■","■","■","■","■","■","■","■","  ","▦","■","■",White "■" Reset,"  "},
 
-        {"  ","■","■","■","▦","■","■","■","■","▦","■","■","■","■","■"},
+        {"  ","■","■","■","▦","■","■","■","■","▦","■","■","■","■",White "■" Reset},
 
-        {"▦","▦","■","▦","▦","■","■","■","▦","▦","▦","■","■","■","▦"},
+        {"▦","▦","■","▦","▦","■","■","■","▦","▦","▦","■","■","■",Lgray"▦" Reset},
 
-        {"▦","▦","▦","▦","▦","▦","▦","▦","▦","▦","▦","▦","▦","▦","▦"},
+        {"▦","▦","▦","▦","▦","▦","▦","▦","▦","▦","▦","▦","▦","▦",Lgray "▦" Reset},
 
-        {"  ","▦","▦","▦","▦","▦","▦","▦","▦","▦","▦","▦","▦","▦","  "}
+        {"  ","▦","▦","▦","▦","▦","▦","▦","▦","▦","▦","▦","▦",Lgray"▦" Reset,"  "}
     };
 
     void setActive(bool b) {
@@ -188,16 +188,25 @@ public:
         for (int i = 0; i < 7; i++) {
             for (int j = 0; j < 15; j++) {
                 if (DefaultImage[i][j] == "■") {
-                    DefaultImage[i][j] = White"■";
+                    if (j < 14 && DefaultImage[i][j + 1] == "  ")
+                    {
+                        DefaultImage[i][j] = White"■" Reset;
+                    }
+                    else
+                    {
+                        DefaultImage[i][j] = White"■";
+                    }
                 } else if (DefaultImage[i][j] == "▦") {
-                    DefaultImage[i][j] = Lgray"▦";
-                } else if (DefaultImage[i][j] == "  " && j != 0 && DefaultImage[i][j - 1] != "  ") {
-                    DefaultImage[i][j] = Reset"  ";
+                    if (j < 14 && DefaultImage[i][j + 1] == "  ")
+                    {
+                        DefaultImage[i][j] = Lgray"▦" Reset;
+                    }
+                    else
+                    {
+                        DefaultImage[i][j] = Lgray"▦";
+                    }
                 }
                 Image[i][j] = DefaultImage[i][j];
-                if (j==14) {
-                    Image[i][j] += Reset;
-                }
             }
         }
     }
@@ -308,16 +317,35 @@ public:
         for (int i = 0; i < 22; i++) {
             for (int j = 0; j < 46; j++) {
                 if (DefaultImage[i][j] == "■") {
-                    DefaultImage[i][j] = White"■";
+                    if (j < 45 && DefaultImage[i][j + 1] == "  ")
+                    {
+                        DefaultImage[i][j] = White"■" Reset;
+                    }
+                    else
+                    {
+                        DefaultImage[i][j] = White"■";
+                    }
                 } else if (DefaultImage[i][j] == "▣") {
-                    DefaultImage[i][j] = Lgray"▣";
+                    if (j < 45 && DefaultImage[i][j + 1] == "  ")
+                    {
+                        DefaultImage[i][j] = Lgray"▣" Reset;
+                    }
+                    else
+                    {
+                        DefaultImage[i][j] = Lgray"▣";
+                    }
                 } else if (DefaultImage[i][j] == "▧") {
-                    DefaultImage[i][j] = Gray"▧";
-                } else if (DefaultImage[i][j] == "  " && j != 0 && DefaultImage[i][j - 1] != "  ") {
-                    DefaultImage[i][j] = Reset"  ";
-                }
+                    if (j < 45 && DefaultImage[i][j + 1] == "  ")
+                    {
+                        DefaultImage[i][j] = Gray"▧" Reset;
+                    }
+                    else
+                    {
+                        DefaultImage[i][j] = Gray"▧";
+                    }
+                } 
                 Image[i][j] = DefaultImage[i][j];
-            }
+            } 
         }
     }
 
@@ -414,7 +442,7 @@ public:
     int MoveSpeed;
     int MoveCount;
     bool IsFalling;
-
+    bool DefaultType;
     string DefaultImage[12][1] = {
                     {Red"■" Reset},
         {BgRed TextWhite"◆" Reset},
@@ -435,10 +463,11 @@ public:
         Y = y;
         DefaultX = x;
         DefaultY = y;
-        Active = true;
+        Active = false;
         Width = width;
         Height = height;
         IsFalling = isfalling;
+        DefaultType = isfalling;
         ImagePaste();
     }
 
@@ -465,16 +494,20 @@ public:
     void ResetPos() {
         X = DefaultX;
         Y = DefaultY;
-        Active = true;
-        IsFalling = true;
+        Active = false;
+        IsFalling = DefaultType;
     }
 
+    void setActive(bool b) {
+        Active = b;
+    }
 
     void MoveSword() {
         if (IsFalling == false) {
             X--;
+            X--;
             if (X + Width < 0) {
-                X = 100;
+                ResetPos();
             }
         }
     }
@@ -567,7 +600,7 @@ public:
 
         {"  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","▤","▣","▣","▣","▣","▣","▣","▤","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  "},
 
-        {"  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","▤","▤","▤","▤","▤","▤","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  "},
+        {"  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","▤","▤","▤","▤","▤","▤","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  "}
     };
 
     string TwoImage[18][38] = {
@@ -605,7 +638,7 @@ public:
 
         {"  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","▤","▧","▧","▧","▧","▧","▧","▧","▧","▧","▧","▤","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  "},
 
-        {"  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  "},
+        {"  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  "}
     };
 
     string OneImage[18][38] = {
@@ -643,12 +676,14 @@ public:
 
         {"  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","▤","▦","▦","▦","▦","▦","▦","▦","▦","▦","▦","▤","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  "},
 
-        {"  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  "},
+        {"  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  "}
     };
 
     PauseUi(int x, int y, int width, int height) : Object(width, height) {
         X = x;
         Y = y;
+        DefaultX = x;
+        DefaultY = y;
         Active = false;
         Width = width;
         Height = height;
@@ -711,6 +746,257 @@ public:
                     DefaultImage[i][j] = Yellow"▧";
                 } else if (DefaultImage[i][j] == "▦") {
                     DefaultImage[i][j] = Red"▦";
+                }
+                Image[i][j] = DefaultImage[i][j];
+            }
+        }
+    }
+
+    void Render(Scene& s) {
+        for (int i = 0; i < Height; i++) {
+            if ((Y + i) < 39) {
+                for (int j = 0; j < Width; j++) {
+                    if (0 <= (X + j) && (X + j) < 100) {
+                        if (Image[i][j] != "  ") {
+                            s.ScreenBuffer[Y + i][X + j] = Image[i][j];
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+};
+
+class GameOverUI : public Object {
+public:
+
+    string DefaultImage[18][38];
+
+    string GameOver[18][38] = {
+        {"▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤"},
+
+        {"▤","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","▤"},
+
+        {"▤","□","□","■","■","■","□","□","■","■","□","□","■","□","□","□","■","□","■","■","■","■","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","▤"},
+
+        {"▤","□","■","□","□","□","□","■","□","□","■","□","■","■","□","■","■","□","■","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","▤"},
+
+        {"▤","□","■","□","■","■","□","■","■","■","■","□","■","□","■","□","■","□","■","■","■","■","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","▤"},
+
+        {"▤","□","■","□","□","■","□","■","□","□","■","□","■","□","□","□","■","□","■","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","▤"},
+
+        {"▤","□","□","■","■","■","□","■","□","□","■","□","■","□","□","□","■","□","■","■","■","■","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","▤"},
+
+        {"▤","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","▤"},
+
+        {"▤","□","□","□","□","□","□","□","□","□","□","□","□","□","■","■","□","□","■","□","□","□","■","□","■","■","■","■","□","■","■","■","□","□","■","■","□","▤"},
+
+        {"▤","□","□","□","□","□","□","□","□","□","□","□","□","■","□","□","■","□","■","□","□","□","■","□","■","□","□","□","□","■","□","□","■","□","■","■","□","▤"},
+
+        {"▤","□","□","□","□","□","□","□","□","□","□","□","□","■","□","□","■","□","■","□","□","□","■","□","■","■","■","■","□","■","□","□","■","□","■","■","□","▤"},
+
+        {"▤","□","□","□","□","□","□","□","□","□","□","□","□","■","□","□","■","□","□","■","□","■","□","□","■","□","□","□","□","■","■","■","□","□","□","□","□","▤"},
+
+        {"▤","□","□","□","□","□","□","□","□","□","□","□","□","■","□","□","■","□","□","■","□","■","□","□","■","□","□","□","□","■","□","■","□","□","■","■","□","▤"},
+
+        {"▤","□","□","□","□","□","□","□","□","□","□","□","□","□","■","■","□","□","□","□","■","□","□","□","■","■","■","■","□","■","□","□","■","□","■","■","□","▤"},
+
+        {"▤","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","▤"},
+
+        {"▤","□",Text"P.","S.","□",Text"아","래","□",Text"입","력","창","에","□",Text"이","름","을","□",Text"입","력","하","세","요",". ","□","□","□","□","□","□","□","□","□","□","□","□","□","□","▤"},
+
+        {"▤","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","▤"},
+
+        {"▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤"}
+    };
+
+    string TryAgainYes[18][38] = {
+        {"▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤"},
+
+        {"▤","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","▤"},
+
+        {"▤","□","■","■","■","□","■","■","□","□","■","□","■","□","□","□","□","□",Text"P.","S.","□",Text"좌","우","방","향","키","를","□",Text"사","용","해","□","□","□","□","□","□","▤"},
+
+        {"▤","□","□","■","□","□","■","□","■","□","■","□","■","□","□","□","□","□","□","□","□",Text"선","택","□",Text"후","□",Text"엔","터","키","□","□","□","□","□","□","□","□","▤"},
+
+        {"▤","□","□","■","□","□","■","■","□","□","□","■","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","▤"},
+
+        {"▤","□","□","■","□","□","■","□","■","□","□","■","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","▤"},
+
+        {"▤","□","□","□","□","□","□","□","□","□","□","□","□","■","□","□","□","■","■","□","□","■","□","□","■","■","■","□","■","□","□","■","□","■","□","■","□","▤"},
+
+        {"▤","□","□","□","□","□","□","□","□","□","□","□","■","□","■","□","■","□","□","□","■","□","■","□","□","■","□","□","■","■","□","■","□","■","□","■","□","▤"},
+
+        {"▤","□","□","□","□","□","□","□","□","□","□","□","■","■","■","□","■","□","■","□","■","■","■","□","□","■","□","□","■","□","■","■","□","□","□","□","□","▤"},
+
+        {"▤","□","□","□","□","□","□","□","□","□","□","□","■","□","■","□","□","■","■","□","■","□","■","□","■","■","■","□","■","□","□","■","□","■","□","■","□","▤"},
+
+        {"▤","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","▤"},
+
+        {"▤","□","□","□","▧","□","□","□","▧","□","▧","▧","▧","▧","□","▧","▧","▧","▧","□","□","□","▦","□","□","▦","□","▦","▦","▦","▦","□","□","□","□","□","□","▤"},
+
+        {"▤","□","□","□","□","▧","□","▧","□","□","▧","□","□","□","□","▧","□","□","□","□","□","□","▦","▦","□","▦","□","▦","□","□","▦","□","□","□","□","□","□","▤"},
+
+        {"▤","□","□","□","□","□","▧","□","□","□","▧","▧","▧","▧","□","▧","▧","▧","▧","□","□","□","▦","▦","▦","▦","□","▦","□","□","▦","□","□","□","□","□","□","▤"},
+
+        {"▤","□","□","□","□","□","▧","□","□","□","▧","□","□","□","□","□","□","□","▧","□","□","□","▦","□","▦","▦","□","▦","□","□","▦","□","□","□","□","□","□","▤"},
+
+        {"▤","□","□","□","□","□","▧","□","□","□","▧","▧","▧","▧","□","▧","▧","▧","▧","□","□","□","▦","□","□","▦","□","▦","▦","▦","▦","□","□","□","□","□","□","▤"},
+
+        {"▤","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","▤"},
+
+        {"▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤"}
+    };
+
+    string TryAgainNo[18][38] = {
+        {"▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤"},
+
+        {"▤","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","▤"},
+
+        {"▤","□","■","■","■","□","■","■","□","□","■","□","■","□","□","□","□","□",Text"P.","S.","□",Text"좌","우","방","향","키","를","□",Text"사","용","해","□","□","□","□","□","□","▤"},
+
+        {"▤","□","□","■","□","□","■","□","■","□","■","□","■","□","□","□","□","□","□","□","□",Text"선","택","□",Text"후","□",Text"엔","터","키","□","□","□","□","□","□","□","□","▤"},
+
+        {"▤","□","□","■","□","□","■","■","□","□","□","■","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","▤"},
+
+        {"▤","□","□","■","□","□","■","□","■","□","□","■","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","▤"},
+
+        {"▤","□","□","□","□","□","□","□","□","□","□","□","□","■","□","□","□","■","■","□","□","■","□","□","■","■","■","□","■","□","□","■","□","■","□","■","□","▤"},
+
+        {"▤","□","□","□","□","□","□","□","□","□","□","□","■","□","■","□","■","□","□","□","■","□","■","□","□","■","□","□","■","■","□","■","□","■","□","■","□","▤"},
+
+        {"▤","□","□","□","□","□","□","□","□","□","□","□","■","■","■","□","■","□","■","□","■","■","■","□","□","■","□","□","■","□","■","■","□","□","□","□","□","▤"},
+
+        {"▤","□","□","□","□","□","□","□","□","□","□","□","■","□","■","□","□","■","■","□","■","□","■","□","■","■","■","□","■","□","□","■","□","■","□","■","□","▤"},
+
+        {"▤","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","▤"},
+
+        {"▤","□","□","□","▦","□","□","□","▦","□","▦","▦","▦","▦","□","▦","▦","▦","▦","□","□","□","▧","□","□","▧","□","▧","▧","▧","▧","□","□","□","□","□","□","▤"},
+
+        {"▤","□","□","□","□","▦","□","▦","□","□","▦","□","□","□","□","▦","□","□","□","□","□","□","▧","▧","□","▧","□","▧","□","□","▧","□","□","□","□","□","□","▤"},
+
+        {"▤","□","□","□","□","□","▦","□","□","□","▦","▦","▦","▦","□","▦","▦","▦","▦","□","□","□","▧","▧","▧","▧","□","▧","□","□","▧","□","□","□","□","□","□","▤"},
+
+        {"▤","□","□","□","□","□","▦","□","□","□","▦","□","□","□","□","□","□","□","▦","□","□","□","▧","□","▧","▧","□","▧","□","□","▧","□","□","□","□","□","□","▤"},
+
+        {"▤","□","□","□","□","□","▦","□","□","□","▦","▦","▦","▦","□","▦","▦","▦","▦","□","□","□","▧","□","□","▧","□","▧","▧","▧","▧","□","□","□","□","□","□","▤"},
+
+        {"▤","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","▤"},
+
+        {"▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤"}
+    };
+
+    string YouWin[18][38] = {
+        {"▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤"},
+
+        {"▤","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","▤"},
+
+        {"▤","□","▣","□","□","□","▣","□","□","▣","▣","▣","□","□","▣","□","□","□","▣","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","▤"},
+
+        {"▤","□","▣","□","□","□","▣","□","▣","□","□","□","▣","□","▣","□","□","□","▣","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","▤"},
+
+        {"▤","□","□","▣","□","▣","□","□","▣","□","□","□","▣","□","▣","□","□","□","▣","□","▣","□","□","□","▣","□","▣","▣","▣","▣","□","▣","□","□","□","▣","□","▤"},
+
+        {"▤","□","□","□","▣","□","□","□","▣","□","□","□","▣","□","▣","□","□","□","▣","□","▣","□","□","□","▣","□","□","▣","▣","□","□","▣","▣","□","□","▣","□","▤"},
+
+        {"▤","□","□","□","▣","□","□","□","▣","□","□","□","▣","□","▣","□","□","□","▣","□","▣","□","□","□","▣","□","□","▣","▣","□","□","▣","▣","□","□","▣","□","▤"},
+
+        {"▤","□","□","□","▣","□","□","□","▣","□","□","□","▣","□","▣","□","□","□","▣","□","▣","□","▣","□","▣","□","□","▣","▣","□","□","▣","□","▣","□","▣","□","▤"},
+
+        {"▤","□","□","□","▣","□","□","□","□","▣","▣","▣","□","□","□","▣","▣","▣","□","□","▣","□","▣","□","▣","□","□","▣","▣","□","□","▣","□","□","▣","▣","□","▤"},
+
+        {"▤","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","▣","▣","□","▣","▣","□","□","▣","▣","□","□","▣","□","□","▣","▣","□","▤"},
+
+        {"▤","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","▣","□","□","□","▣","□","▣","▣","▣","▣","□","▣","□","□","□","▣","□","▤"},
+
+        {"▤","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","▤"},
+
+        {"▤","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","▤"},
+
+        {"▤","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","▤"},
+
+        {"▤","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","▤"},
+
+        {"▤","□",Text"P.","S.","□",Text"아","래","□",Text"입","력","창","에","□",Text"이","름","을","□",Text"입","력","하","세","요",". ","□","□","□","□","□","□","□","□","□","□","□","□","□","□","▤"},
+
+        {"▤","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","□","▤"},
+
+        {"▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤"}
+    };
+
+    GameOverUI(int x, int y, int width, int height) : Object(width, height) {
+        X = x;
+        Y = y;
+        DefaultX = x;
+        DefaultY = y;
+        Active = false;
+        Width = width;
+        Height = height;
+        SetDefaultImage(3);
+        ImagePaste();
+    }
+
+    void ResetPos() {
+        X = DefaultX;
+        Y = DefaultY;
+        Active = false;
+        SetDefaultImage(3);
+        ImagePaste();
+    }
+
+    void setActive(bool b) {
+        Active = b;
+    }
+
+    void GameOverSituation(Scene& s ,int a) {
+        gotoxy(0, 0);
+        s.ClearScreenBuf();
+        SetDefaultImage(a);
+        ImagePaste();
+        setActive(true);
+        s.Draw();
+    }
+
+    void SetDefaultImage(int number) {
+        for (int i = 0; i < 18; i++) {
+            for (int j = 0; j < 38; j++) {
+                if (number == 3) {
+                    DefaultImage[i][j] = YouWin[i][j];
+                }
+                else if (number == 2) {
+                    DefaultImage[i][j] = GameOver[i][j];
+                }
+                else if (number == 1) {
+                    DefaultImage[i][j] = TryAgainYes[i][j];
+                }
+                else if (number == 0) {
+                    DefaultImage[i][j] = TryAgainNo[i][j];
+                }
+            }
+        }
+    }
+
+    void ImagePaste() {
+        for (int i = 0; i < 18; i++) {
+            for (int j = 0; j < 38; j++) {
+                if (DefaultImage[i][j] == "■") {
+                    DefaultImage[i][j] = Red"■";
+                }
+                else if (DefaultImage[i][j] == "▤") {
+                    DefaultImage[i][j] = Black"▤" Reset;
+                }
+                else if (DefaultImage[i][j] == "□") {
+                    DefaultImage[i][j] = White"□";
+                }
+                else if (DefaultImage[i][j] == "▣") {
+                    DefaultImage[i][j] = Yellow"▣";
+                }
+                else if (DefaultImage[i][j] == "▧") {
+                    DefaultImage[i][j] = Gray"▧";
+                }
+                else if (DefaultImage[i][j] == "▦") {
+                    DefaultImage[i][j] = Lgray"▦";
                 }
                 Image[i][j] = DefaultImage[i][j];
             }
@@ -1051,8 +1337,6 @@ public:
                     DefaultImage[i][j] = White"▣"; 
                 } else if (DefaultImage[i][j] == "□") {
                     DefaultImage[i][j] = Black"□";
-                } if (j < 39 && DefaultImage[i][j + 1] == "  " && DefaultImage[i][j] != "  ") {
-                    DefaultImage[i][j] += Reset;
                 }
                 Image[i][j] = DefaultImage[i][j];
             }
@@ -1251,6 +1535,10 @@ public:
     }
 
     void writeLeaderBoard(string name, int score, int stageNumber) {
+        if (name.length() > 10)
+        {
+            name = name.substr(0, 10);
+        }
         for (int i = 0; i < 10; i++) {
             if (LeaderBoard[i][2] == "" || score > stoi(LeaderBoard[i][2])) {
                 for (int j = 9; j > i; j--) {
@@ -1295,12 +1583,11 @@ public:
     bool IsJump;
     bool IsFalling;
     int JumpCount;
-    int defaultY;
 
     Player(int x, int y, int width, int height) : Object(width, height) {
         X = x;
         Y = y;
-        defaultY = y;
+        DefaultY = y;
         Active = true;
         MoveCount = 0;
         JumpCount = 0;
@@ -1353,6 +1640,7 @@ public:
         JumpCount = 0;
         IsFalling = false;
         IsJump = false;
+        Y = DefaultY;
     }
 
 
@@ -1366,21 +1654,15 @@ public:
         for (int i = 0; i < Height; i++) {
             for (int j = 0; j < Width; j++) {
                 if (DefaultImage[i][j] == "■") {
-                    DefaultImage[i][j] = Lmint"■";
+                    DefaultImage[i][j] = Lmint"■" Reset;
                 } else if (DefaultImage[i][j] == "▤") {
-                    DefaultImage[i][j] = White"▤";
+                    DefaultImage[i][j] = White"▤" Reset;
                 } else if (DefaultImage[i][j] == "□") {
-                        DefaultImage[i][j] = Mint"□";
+                        DefaultImage[i][j] = Mint"□" Reset;
                 } else if (DefaultImage[i][j] == "▧") {
-                    DefaultImage[i][j] = Lblue"▧";
+                    DefaultImage[i][j] = Lblue"▧" Reset;
                 } else if (DefaultImage[i][j] == "▲" || DefaultImage[i][j] == "▣") {
                     DefaultImage[i][j] = TextBlack BgLmint + DefaultImage[i][j];
-                }
-                if (j < 79 && DefaultImage[i][j + 1] == "  " && DefaultImage[i][j] != "  ") {
-                    DefaultImage[i][j] += Reset;
-                } 
-                if (j==9) {
-                    DefaultImage[i][j] += Reset;
                 }
                 Image[i][j] = DefaultImage[i][j];
             }
@@ -1389,13 +1671,13 @@ public:
 
     void MovePlayer() {
         if (IsJump == false) {
-            if (MoveCount < 2) {
-                Y++;
-                MoveCount++;
-            } else {
+            if (MoveCount < 4) {
                 Y--;
                 MoveCount++;
-                if (MoveCount >= 4) {
+            } else {
+                Y++;
+                MoveCount++;
+                if (MoveCount >= 8) {
                     MoveCount = 0;
                 }
             }
@@ -1418,18 +1700,64 @@ public:
                 if (JumpCount <= 1) {
                     IsFalling = false;
                     IsJump = false;
-                    Y = defaultY;
+                    Y = DefaultY;
                 }
             }
         }
     }
 
     bool Collider(Sword& sw) { // 교체
-        if (sw.X >= X && sw.X <= X + 10) {
+
+        if (sw.X >= X+2 && sw.X <= X + 6) {
             if ((Y + 9) >= 27) {
                 return true;
             }
         }
+        else if (sw.X == X + 1 || sw.X == X + 7 || sw.X == X + 8)
+        {
+            if ((Y + 9) >= 28) {
+                return true;
+            }
+        }
+        else if (sw.X == X || sw.X == X + 9)
+        {
+            if ((Y + 9) >= 29) {
+                return true;
+            }
+        }
+    }
+};
+
+class Stage {
+public:
+
+    int StageArray[120];
+
+    Stage() {};
+
+    void readDataFromFile(const string& filename) {
+        ifstream inputFile(filename);
+        if (!inputFile.is_open()) {
+            cout << "파일 열기 실패" << endl;
+            return;
+        }
+
+        string line;
+        int row = 0;
+        while (getline(inputFile, line)) {
+            istringstream iss(line);
+            string token;
+            int col = 0;
+            while (getline(iss, token, ',')) {
+                if (col > 120)
+                {
+                    break;
+                }
+                StageArray[col] = stoi(token);
+                col++;
+            }
+        }
+        inputFile.close();
     }
 };
 
@@ -1437,48 +1765,57 @@ int main() {
     ios::sync_with_stdio(false); // 표준 입출력 가속화
     cin.tie(NULL);
     cout.tie(NULL);
-    system("mode con cols=200 lines=40");
+    system("mode con cols=200 lines=41");
 
     Scene GameScene;
     Scene MainScene;
 
-    Player player(5, 23, 10, 10);
-    Cloud cloud_1(30, 5, 15, 7, 1);
-    Cloud cloud_2(70, 8, 15, 7, 2);
-    Cloud cloud_3(10, 10, 15, 7, 3);
+    Stage stage;
+    Player player(5, 25, 10, 10);
+    vector<Cloud> CloudArray;
+    Cloud cloud1(30, 15, 15, 7, 1);
+    Cloud cloud2(70, 20, 15, 7, 2);
+    Cloud cloud3(10, 12, 15, 7, 3);
     Ground ground(100, 4);
     Mountain mountain(20, 13, 46, 22);
-    Sword sword(90, 1, 1, 12, true);
-    PauseUi pauseui(31, 10, 38, 18);
+    Sword fallingsword(99, 1, 1, 12, true);
+    Sword sword(99, 27, 1, 12, false);
 
+    PauseUi pauseui(31, 10, 38, 18);
+    GameOverUI gameoverui(31, 10, 38, 18);
 
     StartUI startui(10, 5, 80, 30);
     Arrow arrow(46, 17, 7, 7);
     Rules rules(30, 5, 40, 30);
     Ranks ranks(30, 5, 40, 30);
 
-    string LeaderBoard = "LeaderBoard.txt";
-    ranks.readDataFromFile(LeaderBoard);
+    string leaderboard = "LeaderBoard.txt";
+    ranks.readDataFromFile(leaderboard);
 
-    string stage = "1.txt";
+    string stagefile = "1.txt";
+    stage.readDataFromFile(stagefile);
 
-    int speed = 1;
+    int speed = 0;
     int score = 0;
+    int stagesequence = 0;
     bool IsStart = false;
     bool Pause = false;
     bool CloseProgram = false;
-    bool IsCollision;
+    bool FsCollision;
+    bool SCollision;
     string name = "";
-    int stagenumber = stoi(stage.substr(0, stage.find(".")));
+    int stagenumber = stoi(stagefile.substr(0, stagefile.find(".")));
 
     GameScene.AddObject(mountain);
-    GameScene.AddObject(cloud_1);
-    GameScene.AddObject(cloud_2);
-    GameScene.AddObject(cloud_3);
+    GameScene.AddObject(cloud1);
+    GameScene.AddObject(cloud2);
+    GameScene.AddObject(cloud3);
+    GameScene.AddObject(fallingsword);
     GameScene.AddObject(sword);
     GameScene.AddObject(ground);
     GameScene.AddObject(player);
     GameScene.AddObject(pauseui);
+    GameScene.AddObject(gameoverui);
 
     MainScene.AddObject(startui);
     MainScene.AddObject(arrow);
@@ -1491,124 +1828,196 @@ int main() {
 
             auto startTime = chrono::high_resolution_clock::now();
 
+            switch (stage.StageArray[stagesequence])
+            {
+            case 0:
+                break;
+            case 1:
+                sword.setActive(true);
+                break;
+            case 2:
+                fallingsword.setActive(true);
+                break;
+            }
+
             GameScene.ClearScreenBuf();
             if (_kbhit()) {
                 char key = _getch();
                 if (key == ' ') {
                     player.IsJump = true;
-                } else if (key == 80 || key == 112) {
+                }
+                else if (key == 'p' || key == 'P') {
                     Pause = true;
                     pauseui.setActive(true);
                 }
             }
-
             player.JumpPlayer();
             player.MovePlayer();
-            cloud_1.MoveCloud();
-            cloud_2.MoveCloud();
-            cloud_3.MoveCloud();
+            cloud1.MoveCloud();
+            cloud2.MoveCloud();
+            cloud3.MoveCloud();
             mountain.MoveMountain();
             ground.MoveGround();
-            sword.MoveSword();
-            sword.FallingSword();
+
+            if (fallingsword.Active == true)
+            {
+                fallingsword.MoveSword();
+                fallingsword.FallingSword();
+            }
+
+            if (sword.Active == true)
+            {
+                sword.MoveSword();
+            }
 
             GameScene.Draw();
             cout << "점수 : " << score << " , 속도 : " << speed;
-            IsCollision = player.Collider(sword);
-            if (IsCollision) {
-                cout << "이름을 입력하시오 : ";
+            FsCollision = player.Collider(fallingsword);
+            SCollision = player.Collider(sword);
+            if (FsCollision || SCollision) {
+                gameoverui.GameOverSituation(GameScene, 2);
+                cout << "이름을 입력하시오(5글자 제한, 띄어쓰기 불가) : ";
                 cin >> name;
+                gotoxy(0, 39);
+                cout << "                                                                     ";
                 ranks.writeLeaderBoard(name, score, stagenumber);
-                ranks.writeDataToFile(LeaderBoard);
-                GameScene.ResetObject();
-                speed = 1;
-                score = 0;
-                IsStart = false;
-                IsCollision = false;
-            }
-
-            auto endTime = chrono::high_resolution_clock::now();
-
-            chrono::duration<double> elapsedTime = endTime - startTime;
-
-            double targetFrameTime = 1.0 / 60;
-
-            double sleepTime = targetFrameTime - elapsedTime.count();
-            if (sleepTime > 0) {
-                this_thread::sleep_for(chrono::duration<double>(sleepTime));
-            }
-
-            if (Pause == true) {
-                while (Pause) {
+                ranks.writeDataToFile(leaderboard);
+                gameoverui.GameOverSituation(GameScene, 1);
+                int select = 1;
+                while (true)
+                {
                     if (_kbhit()) {
                         char key = _getch();
-                        if (key == 80 || key == 112) {
-                            Pause = false;
+                        if (key == 75)
+                        {
+                            select = 1;
+                            gameoverui.GameOverSituation(GameScene, select);
+                        }
+                        else if (key == 77)
+                        {
+                            select = 0;
+                            gameoverui.GameOverSituation(GameScene, select);
+                        }else if (key == 13)
+                        {
+                            break;
+                        }
+                    }                   
+                }
+                if (select == 1)
+                {
+                    GameScene.ResetObject();
+                    speed = 0;
+                    score = 0;
+                    FsCollision = false;
+                    SCollision = false;
+                    //GameScene.ClearScreenBuf();
+                    //GameScene.Draw();
+                } else if (select == 0) {
+                    GameScene.ResetObject();
+                    speed = 0;
+                    score = 0;
+                    IsStart = false;
+                    FsCollision = false;
+                    SCollision = false;
+                }
+            }
+                auto endTime = chrono::high_resolution_clock::now();
+
+                chrono::duration<double> elapsedTime = endTime - startTime;
+
+                double targetFrameTime = 1.0 / 60;
+
+                double sleepTime = targetFrameTime - elapsedTime.count();
+                if (sleepTime > 0) {
+                    this_thread::sleep_for(chrono::duration<double>(sleepTime));
+                }
+
+                if (Pause == true) {
+                    while (Pause) {
+                        if (_kbhit()) {
+                            char key = _getch();
+                            if (key == 'p' || key == 'P') {
+                                Pause = false;
+                            }
                         }
                     }
+                    pauseui.PauseGame(GameScene);
                 }
-                pauseui.PauseGame(GameScene);
-            }
 
-            score++;
-            if (score % 100 == 0) {
-                speed++;
-            }
-        } else if (IsStart == false) {
-            gotoxy(0, 0);
+                score++;
+                if (score % 50 == 0) {
+                    stagesequence++;
+                    if (stagesequence > 120) {
 
-            auto startTime = chrono::high_resolution_clock::now();
-
-            MainScene.ClearScreenBuf();
-
-            if (_kbhit()) {
-                char key = _getch();
-                if (key == 80 && arrow.UpDown == true) {
-                    arrow.Y += 10;
-                    arrow.UpDown = false;
-                } else if (key == 72 && arrow.UpDown == false) {
-                    arrow.Y -= 10;
-                    arrow.UpDown = true;
-                } else if (key == 13 && arrow.UpDown == false && arrow.LeftRight == true) {
-                    CloseProgram = true;
-                } else if (key == 13 && arrow.UpDown == true && arrow.LeftRight == true) {
-                    GameScene.ResetObject();
-                    IsStart = true;
-                } else if (key == 13 && arrow.LeftRight == false && arrow.UpDown == false) {
-                    if (ranks.Active == false) {
-                        ranks.setActive(true);
-                    } else {
-                        ranks.setActive(false);
                     }
-                    ranks.loadingLeaderBoard();
-                } else if (key == 13 && arrow.LeftRight == false && arrow.UpDown == true) {
-                    if (rules.Active == false) {
-                        rules.setActive(true);
-                    } else {
-                        rules.setActive(false);
-                    }
-                } else if (key == 75 && arrow.LeftRight == false) {
-                    arrow.LeftRight = true;
-                    arrow.ImagePaste();
-                } else if (key == 77 && arrow.LeftRight == true) {
-                    arrow.LeftRight = false;
-                    arrow.ImagePaste();
+                }
+                if (score % 100 == 0) {
+                    speed++;
                 }
             }
-            MainScene.Draw();
+            else if (IsStart == false) {
+                gotoxy(0, 0);
 
-            auto endTime = chrono::high_resolution_clock::now();
+                auto startTime = chrono::high_resolution_clock::now();
 
-            chrono::duration<double> elapsedTime = endTime - startTime;
+                MainScene.ClearScreenBuf();
 
-            double targetFrameTime = 1.0 / 60;
+                if (_kbhit()) {
+                    char key = _getch();
+                    if (key == 80 && arrow.UpDown == true) {
+                        arrow.Y += 10;
+                        arrow.UpDown = false;
+                    }
+                    else if (key == 72 && arrow.UpDown == false) {
+                        arrow.Y -= 10;
+                        arrow.UpDown = true;
+                    }
+                    else if (key == 13 && arrow.UpDown == false && arrow.LeftRight == true) {
+                        CloseProgram = true;
+                    }
+                    else if (key == 13 && arrow.UpDown == true && arrow.LeftRight == true) {
+                        GameScene.ResetObject();
+                        IsStart = true;
+                    }
+                    else if (key == 13 && arrow.LeftRight == false && arrow.UpDown == false) {
+                        if (ranks.Active == false) {
+                            ranks.setActive(true);
+                        }
+                        else {
+                            ranks.setActive(false);
+                        }
+                        ranks.loadingLeaderBoard();
+                    }
+                    else if (key == 13 && arrow.LeftRight == false && arrow.UpDown == true) {
+                        if (rules.Active == false) {
+                            rules.setActive(true);
+                        }
+                        else {
+                            rules.setActive(false);
+                        }
+                    }
+                    else if (key == 75 && arrow.LeftRight == false) {
+                        arrow.LeftRight = true;
+                        arrow.ImagePaste();
+                    }
+                    else if (key == 77 && arrow.LeftRight == true) {
+                        arrow.LeftRight = false;
+                        arrow.ImagePaste();
+                    }
+                }
+                MainScene.Draw();
 
-            double sleepTime = targetFrameTime - elapsedTime.count();
-            if (sleepTime > 0) {
-                this_thread::sleep_for(chrono::duration<double>(sleepTime));
+                auto endTime = chrono::high_resolution_clock::now();
+
+                chrono::duration<double> elapsedTime = endTime - startTime;
+
+                double targetFrameTime = 1.0 / 60;
+
+                double sleepTime = targetFrameTime - elapsedTime.count();
+                if (sleepTime > 0) {
+                    this_thread::sleep_for(chrono::duration<double>(sleepTime));
+                }
             }
         }
-    }
     return 0;
 }
-   
