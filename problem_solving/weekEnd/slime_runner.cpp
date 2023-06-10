@@ -1946,9 +1946,55 @@ int main() {
 
                 score++;
                 if (score % 50 == 0) {
-                    stagesequence++;
+                    stagesequence ++;
                     if (stagesequence > 120) {
-
+                        gameoverui.GameOverSituation(GameScene, 3);
+                        cout << "이름을 입력하시오(5글자 제한, 띄어쓰기 불가) : ";
+                        cin >> name;
+                        gotoxy(0, 39);
+                        cout << "                                                                     ";
+                        ranks.writeLeaderBoard(name, score, stagenumber);
+                        ranks.writeDataToFile(leaderboard);
+                        gameoverui.GameOverSituation(GameScene, 1);
+                        int select = 1;
+                        while (true)
+                        {
+                            if (_kbhit()) {
+                                char key = _getch();
+                                if (key == 75)
+                                {
+                                    select = 1;
+                                    gameoverui.GameOverSituation(GameScene, select);
+                                }
+                                else if (key == 77)
+                                {
+                                    select = 0;
+                                    gameoverui.GameOverSituation(GameScene, select);
+                                }
+                                else if (key == 13)
+                                {
+                                    break;
+                                }
+                            }
+                        }
+                        if (select == 1)
+                        {
+                            GameScene.ResetObject();
+                            speed = 0;
+                            score = 0;
+                            FsCollision = false;
+                            SCollision = false;
+                            //GameScene.ClearScreenBuf();
+                            //GameScene.Draw();
+                        }
+                        else if (select == 0) {
+                            GameScene.ResetObject();
+                            speed = 0;
+                            score = 0;
+                            IsStart = false;
+                            FsCollision = false;
+                            SCollision = false;
+                        }
                     }
                 }
                 if (score % 100 == 0) {
