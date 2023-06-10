@@ -8,7 +8,6 @@
 #include <thread>
 #include <chrono>
 #include "Colors.hpp"
-#include <variant>
 
 #define TextBlack "\033[30m"
 #define TextRed "\033[31m"
