@@ -203,7 +203,7 @@ public:
         GameScene.Draw();
         cout << "점수 : " << score << " , 속도 : " << speed;
 
-        /*for (int i = 0; i < usingsword.size(); i++)
+        for (int i = 0; i < usingsword.size(); i++)
         {
             Collision = player.Collider(*usingsword[i]);
             if (Collision == true)
@@ -214,7 +214,7 @@ public:
         if (Collision == true) {
             gameoverui.GameOverSituation(GameScene, 2);
             GameOver();
-        }*/
+        }
         auto endTime = chrono::high_resolution_clock::now();
 
         chrono::duration<double> elapsedTime = endTime - startTime;
