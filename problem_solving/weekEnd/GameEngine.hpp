@@ -247,7 +247,7 @@ public:
                 GameOver();
             }
         }
-        if (score % 200 == 0) {
+        if (score % 500 == 0) {
             if (speed < 6)
             {
                 speed++;
