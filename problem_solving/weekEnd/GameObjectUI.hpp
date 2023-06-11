@@ -1,11 +1,25 @@
 #pragma once
-#include "GameObjects.hpp"
+#include <iostream>
+#include <string>
+#include <conio.h>
+#include <windows.h>
+#include <sstream>
+#include <vector>
+#include <thread>
+#include <chrono>
+#include <fstream>
 
+using namespace std;
+
+// PauseUi 클래스
 class PauseUi : public Object {
+
 public:
 
+    // 기본 이미지를 저장할 배열
     string DefaultImage[18][38];
 
+    // Pause이미지
     string PauseImage[18][38] = {
         {"▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤"},
 
@@ -44,6 +58,7 @@ public:
         {"▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤"}
     };
 
+    // 숫자 3 이미지
     string ThreeImage[18][38] = {
         {"  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","▤","▤","▤","▤","▤","▤","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  "},
 
@@ -82,6 +97,7 @@ public:
         {"  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","▤","▤","▤","▤","▤","▤","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  "}
     };
 
+    // 숫자 2 이미지
     string TwoImage[18][38] = {
          {"  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","▤","▤","▤","▤","▤","▤","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  "},
 
@@ -120,6 +136,7 @@ public:
         {"  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  "}
     };
 
+    // 숫자 1 이미지
     string OneImage[18][38] = {
         {"  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","▤","▤","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  ","  "},
 
@@ -170,12 +187,14 @@ public:
         ImagePaste();
     }
 
+    // 객체의 설정을 초기설정으로 바꾸는 함수
     void ResetPos() {
         X = DefaultX;
         Y = DefaultY;
         Active = false;
     }
 
+    // Pause된 상황에서 다시 p키를 눌렀을때 재시작하게 해주는 함수
     void PauseGame(Scene& s) {
         for (int i = 3; i > 0; i--) {
             GoToXY(0, 0);
@@ -190,10 +209,12 @@ public:
         ImagePaste();
     }
 
+    // 객체의 Active값을 설정하는 함수
     void setActive(bool b) {
         Active = b;
     }
 
+    // 기본이미지를 상태에 맞게 설정하는 함수
     void SetDefaultImage(int number) {
         for (int i = 0; i < 18; i++) {
             for (int j = 0; j < 38; j++) {
@@ -213,6 +234,7 @@ public:
         }
     }
 
+    // Object의 기본 이미지를 Image배열에 복사하는 함수
     void ImagePaste() {
         for (int i = 0; i < 18; i++) {
             for (int j = 0; j < 38; j++) {
@@ -239,6 +261,7 @@ public:
         }
     }
 
+    // Scene 객체를 매개변수로 받아서 ScreenBuffer에 Object를 렌더링하는 함수
     void Render(Scene& s) {
         for (int i = 0; i < Height; i++) {
             if ((Y + i) < 39) {
@@ -252,14 +275,17 @@ public:
             }
         }
     }
-
 };
 
-class GameOverUI : public Object {
+// GameOverUi 클래스
+class GameOverUi : public Object {
+
 public:
 
+    // 기본 이미지를 저장할 배열
     string DefaultImage[18][38];
 
+    // GameOver 이미지
     string GameOver[18][38] = {
         {"▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤"},
 
@@ -298,6 +324,7 @@ public:
         {"▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤"}
     };
 
+    // TryAgainYes 이미지
     string TryAgainYes[18][38] = {
         {"▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤"},
 
@@ -336,6 +363,7 @@ public:
         {"▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤"}
     };
 
+    // TryAgainNo 이미지
     string TryAgainNo[18][38] = {
         {"▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤"},
 
@@ -374,6 +402,7 @@ public:
         {"▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤"}
     };
 
+    // YouWin 이미지
     string YouWin[18][38] = {
         {"▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤"},
 
@@ -412,7 +441,7 @@ public:
         {"▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤","▤"}
     };
 
-    GameOverUI(int x, int y, int width, int height) : Object(width, height) {
+    GameOverUi(int x, int y, int width, int height) : Object(width, height) {
         X = x;
         Y = y;
         DefaultX = x;
@@ -424,6 +453,7 @@ public:
         ImagePaste();
     }
 
+    // 객체의 설정을 초기설정으로 바꾸는 함수
     void ResetPos() {
         X = DefaultX;
         Y = DefaultY;
@@ -432,10 +462,12 @@ public:
         ImagePaste();
     }
 
+    // 객체의 Active값을 설정하는 함수
     void setActive(bool b) {
         Active = b;
     }
 
+    // 게임 오버가 된 상황에서 팝업창을 출력하는 함수
     void GameOverSituation(Scene& s, int a) {
         GoToXY(0, 0);
         s.ClearScreenBuf();
@@ -445,6 +477,7 @@ public:
         s.Draw();
     }
 
+    // 기본이미지를 상태에 맞게 설정하는 함수
     void SetDefaultImage(int number) {
         for (int i = 0; i < 18; i++) {
             for (int j = 0; j < 38; j++) {
@@ -464,6 +497,7 @@ public:
         }
     }
 
+    // Object의 기본 이미지를 Image배열에 복사하는 함수
     void ImagePaste() {
         for (int i = 0; i < 18; i++) {
             for (int j = 0; j < 38; j++) {
@@ -490,6 +524,7 @@ public:
         }
     }
 
+    // Scene 객체를 매개변수로 받아서 ScreenBuffer에 Object를 렌더링하는 함수
     void Render(Scene& s) {
         for (int i = 0; i < Height; i++) {
             if ((Y + i) < 39) {
@@ -503,13 +538,14 @@ public:
             }
         }
     }
-
 };
 
-class StartUI : public Object
-{
+// StartUi 클래스
+class StartUi : public Object {
+
 public:
 
+    // 메인화면 ui이미지
     string DefaultImage[30][80] = {
         {"□","□","□","□","□","□","  ","□","□","  ","  ","  ","  ","  ","□","□","□","□","□","□","  ","□","□","  ","  ","  ","□","□","  ","□","□","□","□","□","□","  ","  ","□","□","□","□","□","□","  ","□","□","  ","  ","□","□","  ","□","□","  ","  ","  ","□","□","  ","□","□","  ","  ","  ","□","□","  ","□","□","□","□","□","□","  ","□","□","□","□","□","□"},
 
@@ -573,7 +609,7 @@ public:
 
     };
 
-    StartUI(int x, int y, int width, int height) : Object(width, height) {
+    StartUi(int x, int y, int width, int height) : Object(width, height) {
         X = x;
         Y = y;
         Active = true;
@@ -582,6 +618,7 @@ public:
         ImagePaste();
     }
 
+    // Object의 기본 이미지를 Image배열에 복사하는 함수
     void ImagePaste() {
         for (int i = 0; i < 30; i++) {
             for (int j = 0; j < 80; j++) {
@@ -613,10 +650,12 @@ public:
         }
     }
 
+    // 객체의 Active값을 설정하는 함수
     void setActive(bool b) {
         Active = b;
     }
 
+    // Scene 객체를 매개변수로 받아서 ScreenBuffer에 Object를 렌더링하는 함수
     void Render(Scene& s) {
         for (int i = 0; i < Height; i++) {
             if ((Y + i) < 39) {
@@ -632,12 +671,13 @@ public:
     }
 };
 
-class Arrow : public Object
-{
+// Arrow 클래스
+class Arrow : public Object {
+
 public:
 
-    bool UpDown;
-    bool LeftRight;
+    bool UpDown; // 화살표가 위(true)인지 아래(false)인지
+    bool LeftRight; // 화살표가 왼쪽(true)인지 오른쪽(false)인지 
 
     Arrow(int x, int y, int width, int height) : Object(width, height) {
         X = x;
@@ -650,6 +690,7 @@ public:
         ImagePaste();
     }
 
+    // 왼쪽화살표 이미지
     string LeftArrow[7][7] = {
         {"  ","  ","  ","  ","  ","□","□",},
 
@@ -666,6 +707,7 @@ public:
         {"  ","  ","  ","  ","  ","□","□",},
     };
 
+    // 오른쪽 화살표 이미지
     string RightArrow[7][7] = {
         {"□","□","  ","  ","  ","  ","  ",},
 
@@ -682,8 +724,7 @@ public:
         {"□","□","  ","  ","  ","  ","  ",},
     };
 
-
-
+    // Object의 기본 이미지를 Image배열에 복사하는 함수
     void ImagePaste() {
 
         if (LeftRight == true) {
@@ -722,10 +763,12 @@ public:
         }
     }
 
+    // 객체의 Active값을 설정하는 함수
     void setActive(bool b) {
         Active = b;
     }
 
+    // Scene 객체를 매개변수로 받아서 ScreenBuffer에 Object를 렌더링하는 함수
     void Render(Scene& s) {
         for (int i = 0; i < Height; i++) {
             if ((Y + i) < 39) {
@@ -741,9 +784,11 @@ public:
     }
 };
 
-class Rules : public Object
-{
+// Rules 클래스
+class Rules : public Object {
+
 public:
+
     Rules(int x, int y, int width, int height) : Object(width, height)
     {
         X = x;
@@ -754,6 +799,7 @@ public:
         ImagePaste();
     }
 
+    // Rules 팝업창 이미지
     string DefaultImage[30][40] = {
         {"■","■","■","■","■","■","■","■","■","■","■","■","■","■","■","■","■","■","■","■","■","■","■","■","■","■","■","■","■","■","■","■","■","■","■","■","■","■","■","■"},
 
@@ -816,6 +862,7 @@ public:
         {"■","■","■","■","■","■","■","■","■","■","■","■","■","■","■","■","■","■","■","■","■","■","■","■","■","■","■","■","■","■","■","■","■","■","■","■","■","■","■","■"}
     };
 
+    // Object의 기본 이미지를 Image배열에 복사하는 함수
     void ImagePaste() {
         for (int i = 0; i < 30; i++) {
             for (int j = 0; j < 40; j++) {
@@ -841,10 +888,12 @@ public:
         }
     }
 
+    // 객체의 Active값을 설정하는 함수
     void setActive(bool b) {
         Active = b;
     }
 
+    // Scene 객체를 매개변수로 받아서 ScreenBuffer에 Object를 렌더링하는 함수
     void Render(Scene& s) {
         for (int i = 0; i < Height; i++) {
             if ((Y + i) < 39) {
@@ -858,15 +907,14 @@ public:
             }
         }
     }
-
 };
 
-class Ranks : public Object
-{
+// Ranks 클래스
+class Ranks : public Object {
+
 public:
 
-    Ranks(int x, int y, int width, int height) : Object(width, height)
-    {
+    Ranks(int x, int y, int width, int height) : Object(width, height) {
         X = x;
         Y = y;
         Active = false;
@@ -875,7 +923,7 @@ public:
         ImagePaste();
     }
 
-
+    // 순위표를 저장하는 배열
     string LeaderBoard[10][4] = {
         // 순위 이름 점수 스테이지
         {"","","",""},
@@ -890,6 +938,7 @@ public:
         {"","","",""}
     };
 
+    // Ranks 팝업창 이미지
     string DefaultImage[30][40] = {
         {"■","■","■","■","■","■","■","■","■","■","■","■","■","■","■","■","■","■","■","■","■","■","■","■","■","■","■","■","■","■","■","■","■","■","■","■","■","■","■","■"},
 
@@ -952,20 +1001,17 @@ public:
         {"■","■","■","■","■","■","■","■","■","■","■","■","■","■","■","■","■","■","■","■","■","■","■","■","■","■","■","■","■","■","■","■","■","■","■","■","■","■","■","■"}
     };
 
+    // Object의 기본 이미지를 Image배열에 복사하는 함수
     void ImagePaste() {
         for (int i = 0; i < 30; i++) {
             for (int j = 0; j < 40; j++) {
-                if (DefaultImage[i][j] == "■")
-                {
+                if (DefaultImage[i][j] == "■") {
                     DefaultImage[i][j] = Gray"■" Reset;
-                }
-                else if (DefaultImage[i][j] == "▤") {
+                } else if (DefaultImage[i][j] == "▤") {
                     DefaultImage[i][j] = Lgray"▤";
-                }
-                else if (DefaultImage[i][j] == "▣") {
+                } else if (DefaultImage[i][j] == "▣") {
                     DefaultImage[i][j] = White"▣";
-                }
-                else if (DefaultImage[i][j] == "□") {
+                } else if (DefaultImage[i][j] == "□") {
                     DefaultImage[i][j] = Black"□";
                 }
                 Image[i][j] = DefaultImage[i][j];
@@ -973,10 +1019,12 @@ public:
         }
     }
 
+    // 객체의 Active값을 설정하는 함수
     void setActive(bool b) {
         Active = b;
     }
 
+    // Scene 객체를 매개변수로 받아서 ScreenBuffer에 Object를 렌더링하는 함수
     void Render(Scene& s) {
         for (int i = 0; i < Height; i++) {
             if ((Y + i) < 39) {
@@ -991,6 +1039,7 @@ public:
         }
     }
 
+    // 파일의 값을 읽어와서 순위표에 저장하는 함수
     void readDataFromFile(const string& filename) {
         ifstream inputFile(filename);
         if (!inputFile.is_open()) {
@@ -1013,6 +1062,7 @@ public:
         inputFile.close();
     }
 
+    // 순위표에 저장된 값을 파일에 저장하는 함수
     void writeDataToFile(const string& filename) {
         ofstream outputFile(filename);
         if (!outputFile.is_open()) {
@@ -1032,9 +1082,9 @@ public:
         outputFile.close();
     }
 
+    // 순위표에 순위를 기록하는 함수
     void writeLeaderBoard(string name, int score, int stageNumber) {
-        if (name.length() > 10)
-        {
+        if (name.length() > 10){
             name = name.substr(0, 10);
         }
         for (int i = 0; i < 10; i++) {
@@ -1053,15 +1103,14 @@ public:
         for (int i = 0; i < 10; i++) {
             if (i < 9) {
                 LeaderBoard[i][0] = to_string(i + 1) + ".  ";
-            }
-            else if (i == 9) {
+            } else if (i == 9) {
                 LeaderBoard[i][0] = to_string(i + 1) + ". ";
             }
         }
     }
 
-    void loadingLeaderBoard()
-    {
+    // Ranks 팝업창 이미지에 순위를 기록하는 함수
+    void loadingLeaderBoard() {
         string rankline = "";
         DefaultImage[16][3];
         for (int i = 0; i < 10; i++) {
