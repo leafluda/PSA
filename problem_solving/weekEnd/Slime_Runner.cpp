@@ -1,7 +1,9 @@
+#pragma once
 #include <iostream>
 #include <string>
 #include <conio.h>
 #include <windows.h>
+#include <sstream>
 #include <vector>
 #include <thread>
 #include <chrono>
@@ -14,6 +16,8 @@
 #include "Gamestage.hpp"
 
 using namespace std;
+
+/*---------------기능모음---------------*/
 
 // 게임오버가 된 상황에 따라서 다른 창을 ScreenBuffer에 그림
 void GameOverSituation(GameOverUi& g, Scene& s, int a) {
@@ -100,6 +104,7 @@ void PauseGame(Scene& s, PauseUi& p) {
     p.ImagePaste();
 }
 
+/*--------------메인함수----------------*/
 int main() {
     // 표준 입출력 가속화
     ios::sync_with_stdio(false); 
@@ -114,13 +119,14 @@ int main() {
 
     Stage stage; // 스테이지 저장용 객체
     Player player(5, 25, 10, 10); // 플레이어 객체
+    Ground ground(100, 4); // 땅 객체
+    Mountain mountain(50, 13, 46, 22); // 산 객체
+    Sun sun(20, 30, 9, 9);
+
     MemoryPool<Sword> swordpool(10); // 장애물 오브젝트 풀링
     vector<Sword*> usingsword; // 사용하는 장애물을 저장하는 배열
-    MemoryPool<Cloud> cloudpool(3); // 구름 오브젝트 풀링
+    MemoryPool<Cloud> cloudpool(10); // 구름 오브젝트 풀링
     vector<Cloud*> usingcloud; // 사용하는 구름을 저장하는 배열
-
-    Ground ground(100, 4); // 땅 객체
-    Mountain mountain(20, 13, 46, 22); // 산 객체
 
     PauseUi pauseui(31, 10, 38, 18); // 일시정지 ui
     GameOverUi gameoverui(31, 10, 38, 18); // 게임오버 ui
@@ -147,6 +153,7 @@ int main() {
 
     stage.readDataFromFile(stagefile);
     ranks.readDataFromFile(leaderboard);
+    GameScene.AddObject(sun);
     GameScene.AddObject(mountain);
     GameScene.AddObject(ground);
     GameScene.AddObject(player);
@@ -186,12 +193,14 @@ int main() {
             // stage의 순서에 따라서 장애물 생성
             if (SwordCount == true) {
                 if (stage.StageArray[StageSequence] == 1) {
-                    Sword* sword = new (swordpool.Acquire()) Sword(99, 27, 1, 12, false);
+                    Sword* sword = swordpool.Acquire();
+                    sword->setting(99, 27, 1, 12, false);
                     usingsword.push_back(sword);
                     GameScene.InsertObject(*usingsword.back());
                     SwordCount = false;
                 } else if (stage.StageArray[StageSequence] == 2) {
-                    Sword* fallingsword = new (swordpool.Acquire()) Sword(99, 1, 1, 12, true);
+                    Sword* fallingsword = swordpool.Acquire();
+                    fallingsword->setting(99, 1, 1, 12, true);
                     usingsword.push_back(fallingsword);
                     GameScene.InsertObject(*usingsword.back());
                     SwordCount = false;
@@ -261,11 +270,16 @@ int main() {
                 }
             }
 
+            if (score % 100 == 0) {
+                sun.SunMove();
+            }
+
             // 500점 마다 속도 증가, 그때마다 구름을 생성
             if (score % 500 == 0) {
                 if (speed < 6) {
                     speed++;
-                    Cloud* cloud = new (cloudpool.Acquire()) Cloud(speed * 10, speed * 3, 15, 7, speed);
+                    Cloud* cloud = cloudpool.Acquire();
+                    cloud->setting(speed * 10, speed * 3, 15, 7, speed);
                     usingcloud.push_back(cloud);
                     GameScene.InsertObject(*usingcloud.back());
                     GameScene.SpeedObject(speed);
