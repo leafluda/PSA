@@ -11,6 +11,163 @@
 
 using namespace std;
 
+// Sun 클래스
+class Sun : public Object {
+
+public:
+    int cirX; // 태양의 이동경로를 위해 선언된 변수
+    int cirY; // 태양의 이동경로를 위해 선언된 변수
+    int pX; // 태양의 이동경로를 위해 선언된 변수
+    int pY; // 태양의 이동경로를 위해 선언된 변수
+
+    bool SunRise;
+
+    Sun(int x, int y, int width, int height) : Object(width, height) {
+    X = x;
+    Y = y;
+    DefaultX = x;
+    DefaultY = y;
+    Active = true;
+    Width = width;
+    Height = height;
+    SunRise = true;
+    cirX = 1;
+    cirY = 5;
+    pX = 0;
+    pY = 0;
+    ImagePaste();
+    }
+
+    // 태양의 기본 이미지
+    string DefaultImage[9][9] = {
+        {"  ","  ","  ","◇","◇","◇","  ","  ","  "},
+
+        {"  ","  ","◇","■","■","■","◇","  ","  "},
+
+        {"  ","◇","■","▧","▧","▧","■","◇","  "},
+
+        {"◇","■","▧","▦","▦","▦","▧","■","◇"},
+
+        {"◇","■","▧","▦","▦","▦","▧","■","◇"},
+
+        {"◇","■","▧","▦","▦","▦","▧","■","◇"},
+
+        {"  ","◇","■","▧","▧","▧","■","◇","  "},
+
+        {"  ","  ","◇","■","■","■","◇","  ","  "},
+
+        {"  ","  ","  ","◇","◇","◇","  ","  ","  "}
+    };
+
+    // 객체의 Active값을 설정하는 함수
+    void setActive(bool b) {
+        Active = b;
+    }
+
+    // 객체의 설정을 초기설정으로 바꾸는 함수
+    void ResetPos() {
+        X = DefaultX;
+        Y = DefaultY;
+        SunRise = true;
+        cirX = 1;
+        cirY = 5;
+        pX = 0;
+        pY = 0;
+    }
+
+    // Scene 객체를 매개변수로 받아서 ScreenBuffer에 Object를 렌더링하는 함수
+    void Render(Scene& s) {
+        for (int i = 0; i < Height; i++) {
+            if ((Y + i) < 39) {
+                for (int j = 0; j < Width; j++) {
+                    if (0 <= (X + j) && (X + j) < 100) {
+                        if (Image[i][j] != "  ") {
+                            s.ScreenBuffer[Y + i][X + j] = Image[i][j];
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    // Object의 기본 이미지를 Image배열에 복사하는 함수
+    void ImagePaste() {
+        for (int i = 0; i < 9; i++) {
+            for (int j = 0; j < 9; j++) {
+                if (DefaultImage[i][j] == "■") {
+                    DefaultImage[i][j] = Lyellow"■";
+                } else if (DefaultImage[i][j] == "▦") { 
+                    DefaultImage[i][j] = Red"▦";
+                } else if (DefaultImage[i][j] == "▧") {
+                    DefaultImage[i][j] = Lred"▧";
+                }
+                else if (DefaultImage[i][j] == "◇" ) {
+                    DefaultImage[i][j] = White + DefaultImage[i][j];
+                }
+                Image[i][j] = DefaultImage[i][j];
+            }
+        }
+    }
+
+    // 태양을 이동시키는 함수
+    void SunMove() {
+        if (SunRise) {
+            if (cirY > 0) {
+                if (cirY == pY) {
+                    X++;
+                    Y--;
+                    pY = 0;
+                    cirY--;
+                } else if (cirY != pY) {
+                    Y--;
+                    pY++;
+                }
+            } else if (cirY < 1) {
+                if (cirX == pX) {
+                    X++;
+                    Y--;
+                    pX = 0;
+                    cirX++;
+                } else if (cirX != pX) {
+                    X++;
+                    pX++;
+                }
+            }
+            if (cirX == 6) {
+                SunRise = false;
+                pX = 0;
+                pY = 0;
+                cirY = 1;
+                cirX = 5;
+            }
+        } else {
+            if (cirX > 0) {
+                if (cirX == pX) {
+                    X++;
+                    Y++;
+                    pX = 0;
+                    cirX--;
+                } else if (cirX != pX) {
+                    X++;
+                    pX++;
+                }
+            } else if (cirX < 1) {
+                if (cirY == pY) {
+                    X++;
+                    Y++;
+                    pY = 0;
+                    cirY++;
+                } else if (cirY != pY) {
+                    Y++;
+                    pY++;
+                }
+            }
+        }
+        if (Y == 39) {
+            ResetPos();
+        }
+    }
+};
 // Cloud 클래스
 class Cloud : public Object {
 
@@ -44,6 +201,25 @@ public:
         {"▦","▦","▦","▦","▦","▦","▦","▦","▦","▦","▦","▦","▦","▦",Lgray "▦" Reset},
         {"  ","▦","▦","▦","▦","▦","▦","▦","▦","▦","▦","▦","▦",Lgray"▦" Reset,"  "}
     };
+
+    // 생성자 대신 초기화
+    void setting(int x, int y, int width, int height, int cloudspeed) {
+        X = x;
+        Y = y;
+        DefaultX = x;
+        DefaultY = y;
+        Width = width;
+        Height = height;
+        MoveSpeed = cloudspeed;
+        Active = true;
+        MoveCount = 0;
+
+        Image = new string * [Height];
+        for (int i = 0; i < Height; i++) {
+            Image[i] = new string[Width];
+        }
+        ImagePaste();
+    }
 
     // 객체의 Active값을 설정하는 함수
     void setActive(bool b) {
@@ -375,6 +551,25 @@ public:
                   {White"  " Reset},
                   {White"  " Reset}
     };
+
+    // 생성자 대신 초기화
+    void setting(int x, int y, int width, int height, bool isfalling) {
+        X = x;
+        Y = y;
+        DefaultX = x;
+        DefaultY = y;
+        Active = true;
+        Width = width;
+        Height = height;
+        IsFalling = isfalling;
+        DefaultType = isfalling;
+
+        Image = new string * [Height];
+        for (int i = 0; i < Height; i++) {
+            Image[i] = new string[Width];
+        }
+        ImagePaste();
+    }
 
     // Object의 기본 이미지를 Image배열에 복사하는 함수
     void ImagePaste() {
