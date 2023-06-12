@@ -19,14 +19,16 @@ public:
     string Output; // 출력용
     string ScreenBuffer[39][100]; // x 100, y 40
     vector<Object*> Objects; // Scene이 가지고 있는 Object의 리스트
-
+    int bgtrue;
     Scene() {
         Output = "";
         ClearScreenBuf();
+        bgtrue = true;
     }
 
     // Active한 Object의 Render를 호출해 ScreenBuffer에 저장하고 ScreenBuffer 출력
     void Draw() {
+        bgtrue = true;
         for (Object* obj : Objects) {
             if (obj->Active == true) {
                 obj->Render(*this);
@@ -35,9 +37,16 @@ public:
         Output = "";
         for (int i = 0; i < 39; i++) {
             for (int j = 0; j < 100; j++) {
+                if(ScreenBuffer[i][j] == "  " && bgtrue == true){
+                    ScreenBuffer[i][j] = Lmint"  ";
+                    bgtrue = false;
+                } else if (ScreenBuffer[i][j] != "  ") {
+                    bgtrue = true;
+                }
                 Output += ScreenBuffer[i][j];
             }
             Output += Reset"\n";
+            bgtrue = true;
         }
         cout << Output;
         cout.flush();
