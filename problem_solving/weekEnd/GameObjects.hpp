@@ -576,21 +576,4 @@ public:
             }
         }
     }
-
-    // 플레이어와 검이 닿으면 true를 반환해 gameover시킴
-    bool Collider(Sword& sw) { 
-        if (sw.X >= X + 2 && sw.X <= X + 6) {
-            if ((Y + 9) >= 27) {
-                return true;
-            }
-        } else if (sw.X == X + 1 || sw.X == X + 7 || sw.X == X + 8) {
-            if ((Y + 9) >= 28) {
-                return true;
-            }
-        } else if (sw.X == X || sw.X == X + 9) {
-            if ((Y + 9) >= 29) {
-                return true;
-            }
-        }
-    }
 };
