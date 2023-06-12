@@ -69,14 +69,17 @@ void GameOver(string& name, int& score, int& stagenumber, Ranks& ranks, string& 
 bool Collider(Sword& sw, Player& p) {
     if (sw.X >= p.X + 2 && sw.X <= p.X + 6) {
         if ((p.Y + 9) >= 27) {
+            p.PlayerDie();
             return true;
         }
     } else if (sw.X == p.X + 1 || sw.X == p.X + 7 || sw.X == p.X + 8) {
         if ((p.Y + 9) >= 28) {
+            p.PlayerDie();
             return true;
         }
     } else if (sw.X == p.X || sw.X == p.X + 9) {
         if ((p.Y + 9) >= 29) {
+            p.PlayerDie();
             return true;
         }
     }
