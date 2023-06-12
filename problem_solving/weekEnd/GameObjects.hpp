@@ -524,15 +524,15 @@ public:
         for (int i = 0; i < Height; i++) {
             for (int j = 0; j < Width; j++) {
                 if (DefaultImage[i][j] == "■") {
-                    DefaultImage[i][j] = Lmint"■" Reset;
+                    DefaultImage[i][j] = Mint"■" Reset;
                 } else if (DefaultImage[i][j] == "▤") {
                     DefaultImage[i][j] = White"▤" Reset;
                 } else if (DefaultImage[i][j] == "□") {
-                    DefaultImage[i][j] = Mint"□" Reset;
+                    DefaultImage[i][j] = Lblue"□" Reset;
                 } else if (DefaultImage[i][j] == "▧") {
-                    DefaultImage[i][j] = Lblue"▧" Reset;
+                    DefaultImage[i][j] = Blue"▧" Reset;
                 } else if (DefaultImage[i][j] == "▲" || DefaultImage[i][j] == "▣") {
-                    DefaultImage[i][j] = TextBlack BgLmint + DefaultImage[i][j];
+                    DefaultImage[i][j] = TextLyellow BgMint + DefaultImage[i][j];
                 }
                 Image[i][j] = DefaultImage[i][j];
             }
@@ -580,7 +580,7 @@ public:
 
     // 플레이어가 죽었을때 표정 변경을 구현하는 함수
     void PlayerDie() {
-        Image[5][3] = TextBlack BgLmint"▷";
-        Image[5][7] = TextBlack BgLmint"◁";
+        Image[5][3] = TextLyellow BgMint"▷";
+        Image[5][7] = TextLyellow BgMint"◁";
     }
 };
