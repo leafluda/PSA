@@ -510,6 +510,7 @@ public:
         IsFalling = false;
         IsJump = false;
         Y = DefaultY;
+        ImagePaste();
     }
 
     // 객체의 기본 이미지를 Image에 복사하는 함수
@@ -575,5 +576,11 @@ public:
                 }
             }
         }
+    }
+
+    // 플레이어가 죽었을때 표정 변경을 구현하는 함수
+    void PlayerDie() {
+        Image[5][3] = TextBlack BgLmint"▷";
+        Image[5][7] = TextBlack BgLmint"◁";
     }
 };
