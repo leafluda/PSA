@@ -16,10 +16,12 @@ class Scene {
 
 public:
 
+    int bgtrue;
+
     string Output; // 출력용
     string ScreenBuffer[39][100]; // x 100, y 40
     vector<Object*> Objects; // Scene이 가지고 있는 Object의 리스트
-    int bgtrue;
+
     Scene() {
         Output = "";
         ClearScreenBuf();
@@ -81,7 +83,7 @@ public:
 
     //object벡터에 오브젝트추가하는 함수
     void InsertObject(Object& o) {
-        Objects.insert(Objects.begin()+1,&o);
+        Objects.insert(Objects.begin()+2,&o);
     }
 
     void AddObject(Object& o) {
