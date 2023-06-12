@@ -194,21 +194,6 @@ public:
         Active = false;
     }
 
-    // Pause된 상황에서 다시 p키를 눌렀을때 재시작하게 해주는 함수
-    void PauseGame(Scene& s) {
-        for (int i = 3; i > 0; i--) {
-            GoToXY(0, 0);
-            s.ClearScreenBuf();
-            SetDefaultImage(i);
-            ImagePaste();
-            s.Draw();
-            Sleep(1000);
-        }
-        setActive(false);
-        SetDefaultImage(0);
-        ImagePaste();
-    }
-
     // 객체의 Active값을 설정하는 함수
     void setActive(bool b) {
         Active = b;
@@ -465,16 +450,6 @@ public:
     // 객체의 Active값을 설정하는 함수
     void setActive(bool b) {
         Active = b;
-    }
-
-    // 게임 오버가 된 상황에서 팝업창을 출력하는 함수
-    void GameOverSituation(Scene& s, int a) {
-        GoToXY(0, 0);
-        s.ClearScreenBuf();
-        SetDefaultImage(a);
-        ImagePaste();
-        setActive(true);
-        s.Draw();
     }
 
     // 기본이미지를 상태에 맞게 설정하는 함수
