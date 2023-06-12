@@ -27,7 +27,7 @@ void GameOverSituation(GameOverUi& g, Scene& s, int a) {
 
 // 게임오버시 실행되는 동작
 void GameOver(string& name, int& score, int& stagenumber, Ranks& ranks, string& leaderboard, GameOverUi& gameoverui, Scene& GameScene, int& speed, bool& Collision, bool& IsStart) {
-    cout << "이름을 입력하시오(5글자 제한, 띄어쓰기 불가) : ";
+    cout << BgBlack TextWhite"이름을 입력하시오(5글자 제한, 띄어쓰기 불가) : " Reset;
     cin >> name; // 이름을 저장
     GoToXY(0, 39); // 점수와 속도, 이름을 지움 system("cls") 대신 사용
     cout << "                                                                     ";
@@ -219,7 +219,7 @@ int main() {
             }
 
             GameScene.Draw(); // Rendering
-            cout << "점수 : " << score << " , 속도 : " << speed; // 점수, 속도 표시
+            cout << BgBlack TextWhite"점수 : " << score << " , 속도 : " << speed << "" Reset; // 점수, 속도 표시
 
             // 충돌 체크
             for (int i = 0; i < usingsword.size(); i++) {
