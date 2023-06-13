@@ -16,7 +16,7 @@ class Scene {
 
 public:
 
-    int bgtrue;
+    bool bgtrue;
 
     string Output; // 출력용
     string ScreenBuffer[39][100]; // x 100, y 40
@@ -88,5 +88,14 @@ public:
 
     void AddObject(Object& o) {
         Objects.push_back(& o);
+    }
+
+    void eraseObject(Object& o) {
+        for (auto it = Objects.begin(); it != Objects.end(); ++it) {
+            if (*it == &o) {
+                Objects.erase(it);
+                break;
+            }
+        }
     }
 };
