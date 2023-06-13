@@ -29,46 +29,6 @@ void GameOverSituation(GameOverUi& g, Scene& s, int a) {
     s.Draw();
 }
 
-// 게임오버시 실행되는 동작
-void GameOver(string& name, int& score, int& stagenumber, Ranks& ranks, string& leaderboard, GameOverUi& gameoverui, Scene& GameScene, int& speed, bool& Collision, bool& IsStart) {
-    cout << BgBlack TextWhite"이름을 입력하시오(5글자 제한, 띄어쓰기 불가) : " Reset;
-    cin >> name; // 이름을 저장
-    GoToXY(0, 39); // 점수와 속도, 이름을 지움 system("cls") 대신 사용
-    cout << "                                                                     ";
-    ranks.writeLeaderBoard(name, score, stagenumber); // 순위표에 기록
-    ranks.writeDataToFile(leaderboard); // 순위표를 업데이트
-    GameOverSituation(gameoverui, GameScene, 1); // 게임재시작 여부 질문
-    int select = 1;
-
-    // 키를 엔터키를 입력할때까지 계속 질문, 좌우 방향키로 선택
-    while (true) {
-        if (_kbhit()) {
-            char key = _getch();
-            if (key == 75) {
-                select = 1;
-                GameOverSituation(gameoverui, GameScene, select);
-            } else if (key == 77) {
-                select = 0;
-                GameOverSituation(gameoverui, GameScene, select);
-            } else if (key == 13) {
-                break;
-            }
-        }
-    }
-
-    // 게임 변수 초기화
-    speed = 0;
-    score = 0;
-    GameScene.ResetObject();
-    GameScene.SpeedObject(speed);
-    Collision = false;
-
-    // no를 선택시 메인 화면으로
-    if (select == 0) {
-        IsStart = false;
-    }
-}
-
 // 플레이어와 검이 닿으면 true를 반환해 gameover시킴
 bool Collider(Sword& sw, Player& p) {
     if (sw.X >= p.X + 2 && sw.X <= p.X + 6) {
@@ -184,12 +144,6 @@ int main() {
                 }
             }
 
-            // 객체 이동 함수 호출
-            player.JumpPlayer();
-            player.MovePlayer();
-            mountain.MoveMountain();
-            ground.MoveGround();
-
             // stage의 순서에 따라서 장애물 생성
             if (SwordCount == true) {
                 if (stage.StageArray[StageSequence] == 1) {
@@ -197,28 +151,37 @@ int main() {
                     sword->setting(99, 27, 1, 12, false);
                     usingsword.push_back(sword);
                     GameScene.InsertObject(*usingsword.back());
+                    GameScene.SpeedObject(speed);
                     SwordCount = false;
                 } else if (stage.StageArray[StageSequence] == 2) {
                     Sword* fallingsword = swordpool.Acquire();
                     fallingsword->setting(99, 1, 1, 12, true);
                     usingsword.push_back(fallingsword);
                     GameScene.InsertObject(*usingsword.back());
+                    GameScene.SpeedObject(speed);
                     SwordCount = false;
                 }
             }
 
-            // 장애물 객체마다 이동 함수 호출
-            for (int i = 0; i < usingsword.size(); i++) {
-                if (usingsword[i]->Active == true) {
-                    if (usingsword[i]->DefaultType == true) {
-                        usingsword[i]->FallingSword();
-                        usingsword[i]->MoveSword();
-                    } else if (usingsword[i]->DefaultType == false) {
-                        usingsword[i]->MoveSword();
+            // 객체 이동 함수 호출
+            player.JumpPlayer();
+            player.MovePlayer();
+            mountain.MoveMountain();
+            ground.MoveGround();
+
+            for (Sword* sword : usingsword) {
+                if (sword->Active == true) {
+                    if (sword->DefaultType == true) {
+                        sword->FallingSword();
+                        sword->MoveSword();
+                    } else if (sword->DefaultType == false) {
+                        sword->MoveSword();
                     }
-                } else if (usingsword[i]->Active == false) {
-                    swordpool.Release(usingsword[i]);
-                    usingsword.erase(usingsword.begin() + i);
+                } else if (sword->Active == false) {
+                    auto it = find(usingsword.begin(), usingsword.end(), sword);
+                    GameScene.eraseObject(*sword);
+                    swordpool.Release(sword);
+                    usingsword.erase(it);
                 }
             }
 
@@ -241,9 +204,56 @@ int main() {
             // 단 하나의 장애물 객체라도 플레이어와 충돌했다면 게임오버
             if (Collision == true) {
                 GameOverSituation(gameoverui, GameScene, 2);
-                GameOver(name, score, stagenumber, ranks, leaderboard, gameoverui, GameScene, speed, Collision, IsStart);
-            }
+                cout << BgBlack TextWhite"이름을 입력하시오(5글자 제한, 띄어쓰기 불가) : " Reset;
+                cin >> name; // 이름을 저장
+                GoToXY(0, 39); // 점수와 속도, 이름을 지움 system("cls") 대신 사용
+                cout << "                                                                     ";
+                ranks.writeLeaderBoard(name, score, stagenumber); // 순위표에 기록
+                ranks.writeDataToFile(leaderboard); // 순위표를 업데이트
+                GameOverSituation(gameoverui, GameScene, 1); // 게임재시작 여부 질문
+                int select = 1;
 
+                // 키를 엔터키를 입력할때까지 계속 질문, 좌우 방향키로 선택
+                while (true) {
+                    if (_kbhit()) {
+                        char key = _getch();
+                        if (key == 75) {
+                            select = 1;
+                            GameOverSituation(gameoverui, GameScene, select);
+                        } else if (key == 77) {
+                            select = 0;
+                            GameOverSituation(gameoverui, GameScene, select);
+                        } else if (key == 13) {
+                            break;
+                        }
+                    }
+                }
+
+                // 게임 변수 초기화
+                speed = 0;
+                score = 0;
+                GameScene.ResetObject();
+                GameScene.SpeedObject(speed);
+                Collision = false;
+                StageSequence = 0;
+
+                for (Sword* sword : usingsword) {
+                    GameScene.eraseObject(*sword);
+                    swordpool.Release(sword);
+                }
+                usingsword.clear();
+
+                for (Cloud* cloud : usingcloud) {
+                    GameScene.eraseObject(*cloud);
+                    cloudpool.Release(cloud);
+                }
+                usingcloud.clear();
+
+                // no를 선택시 메인 화면으로
+                if (select == 0) {
+                    IsStart = false;
+                }
+            }
             // P,p키를 눌렀다면 pause
             if (Pause == true) {
                 while (Pause) {
@@ -266,7 +276,43 @@ int main() {
                 StageSequence++;
                 if (StageSequence > stage.StageLength && usingsword.size() == 0) {
                     GameOverSituation(gameoverui, GameScene, 3);
-                    GameOver(name, score, stagenumber, ranks, leaderboard, gameoverui, GameScene, speed, Collision, IsStart);
+                    cout << BgBlack TextWhite"이름을 입력하시오(5글자 제한, 띄어쓰기 불가) : " Reset;
+                    cin >> name; // 이름을 저장
+                    GoToXY(0, 39); // 점수와 속도, 이름을 지움 system("cls") 대신 사용
+                    cout << "                                                                     ";
+                    ranks.writeLeaderBoard(name, score, stagenumber); // 순위표에 기록
+                    ranks.writeDataToFile(leaderboard); // 순위표를 업데이트
+                    GameOverSituation(gameoverui, GameScene, 1); // 게임재시작 여부 질문
+                    int select = 1;
+
+                    // 키를 엔터키를 입력할때까지 계속 질문, 좌우 방향키로 선택
+                    while (true) {
+                        if (_kbhit()) {
+                            char key = _getch();
+                            if (key == 75) {
+                                select = 1;
+                                GameOverSituation(gameoverui, GameScene, select);
+                            } else if (key == 77) {
+                                select = 0;
+                                GameOverSituation(gameoverui, GameScene, select);
+                            } else if (key == 13) {
+                                break;
+                            }
+                        }
+                    }
+
+                    // 게임 변수 초기화
+                    speed = 0;
+                    score = 0;
+                    GameScene.ResetObject();
+                    GameScene.SpeedObject(speed);
+                    Collision = false;
+                    StageSequence = 0;
+
+                    // no를 선택시 메인 화면으로
+                    if (select == 0) {
+                        IsStart = false;
+                    }
                 }
             }
 
